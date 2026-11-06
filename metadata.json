@@ -1,0 +1,6 @@
+{
+  "name": "Espaço — Autoconhecimento e Recuperação",
+  "description": "Plataforma privada e acolhedora de autoconhecimento, observação e acompanhamento de recuperação sem julgamentos ou diagnósticos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

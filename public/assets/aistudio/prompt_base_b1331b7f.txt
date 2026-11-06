@@ -1,0 +1,136 @@
+Você é um engenheiro de software sênior especializado em React Native + Expo, com forte experiência em produtos de saúde mental, privacidade e design centrado no usuário.
+
+Quero que você construa o MVP de um aplicativo mobile chamado (provisoriamente) "Espaço" — uma plataforma privada de autoconhecimento e acompanhamento de recuperação.
+
+### Visão do produto
+Um espaço privado e flexível para registrar experiências, acompanhar a própria jornada e compreender padrões de humor, energia, sono, emoções, comportamentos, impulsos e recuperação — sem transformar o acompanhamento em obrigação, diagnóstico ou julgamento.
+
+Princípio central: o aplicativo deve ajudar a pessoa a observar a própria vida, não fazer com que ela sinta que precisa controlar ou pontuar cada aspecto dela.
+
+### Princípios inegociáveis (seguir rigorosamente)
+- Autonomia total: todos os registros são voluntários.
+- Baixa fricção: o check-in básico deve ser concluído em poucos toques.
+- Sem julgamento: linguagem neutra e acolhedora. Nunca use streaks punitivos, mensagens de culpa, rankings ou perda de conquistas.
+- Não diagnóstico: nunca identifique mania, depressão, recaída ou qualquer transtorno com base nos dados.
+- Separação clara de conceitos: impulso ≠ comportamento ≠ controle percebido.
+- Privacidade por padrão: diário é privado. Compartilhamento desligado até o usuário decidir.
+- Recuperação sem competição: marcos reconhecem tempo, mas não medem valor pessoal. Em caso de recaída/reinício, preservar o histórico anterior.
+- Transparência: gráficos devem mostrar quantidade de registros, dias sem dados e limitações da amostra.
+
+### Público-alvo
+Pessoas neurodivergentes (especialmente TDAH), pessoas que acompanham oscilações de humor, pessoas em recuperação de álcool ou outras substâncias, e pessoas interessadas em autoconhecimento. O app não deve exigir diagnóstico nem apresentar trilhas rígidas por condição clínica.
+
+### Stack técnica recomendada
+- React Native + Expo (TypeScript)
+- Supabase (Auth + PostgreSQL + Row Level Security)
+- Expo Router (file-based routing)
+- NativeWind ou StyleSheet com design system limpo
+- Expo Notifications (opcional e desativado por padrão)
+- Recharts ou Victory Native para gráficos (acessíveis)
+
+### Escopo do MVP (implementar apenas isto)
+
+1. **Conta e perfil**
+   - Cadastro e login seguro (email/senha ou magic link)
+   - Configuração de fuso horário
+   - Escolha de módulos ativos (o usuário escolhe o que quer acompanhar)
+   - Preferências de notificação (desativadas por padrão)
+
+2. **Check-in rápido** (tela principal)
+   - Humor geral em escala de 5 níveis (rótulos claros: muito ruim → muito bom)
+   - Energia e ansiedade (escalas opcionais)
+   - Emoções (seleção múltipla + opção “não sei identificar” e “prefiro não responder”)
+   - Campo de observação curta (opcional)
+   - Possibilidade de salvar com apenas 1 campo preenchido
+   - Edição e exclusão de registros
+
+3. **Sono**
+   - Duração, qualidade percebida e horários opcionais
+
+4. **Impulsos e comportamentos**
+   - Categorias totalmente personalizáveis pelo usuário
+   - Separar claramente:
+     - Intensidade do impulso (vontade)
+     - Ocorrência do comportamento (não ocorreu / ocorreu uma vez / ocorreu repetidamente / prefiro não informar)
+     - Controle percebido (controle / alguma dificuldade / perda de controle / não sei avaliar)
+   - Contexto/gatilhos e consequência (opcionais)
+   - Nunca classificar automaticamente nenhum comportamento como patológico
+
+5. **Diário (Journaling)**
+   - Texto livre com data/hora
+   - Edição e exclusão
+   - Privacidade máxima
+
+6. **Minha jornada de recuperação**
+   - Registrar data de início (com rótulo personalizado)
+   - Contador automático de dias (respeitando fuso horário)
+   - Marcos mensais por aniversário de calendário + marcos em dias (30, 60, 90, 180, 365 etc.)
+   - Permitir múltiplos períodos históricos (em caso de reinício, preservar o período anterior)
+   - Registro de reuniões, práticas espirituais, meditação, gratidão e reflexões
+   - Linguagem nunca punitiva em caso de recaída
+
+7. **Insights**
+   - Gráficos descritivos de humor, energia, ansiedade e sono
+   - Frequência e intensidade de impulsos por categoria
+   - Sempre mostrar número de registros e lacunas
+   - Nunca afirmar causalidade. Usar apenas “associações exploratórias”
+   - Com poucos dados, informar claramente “ainda não há registros suficientes”
+
+8. **Dados e privacidade**
+   - Exportação em CSV/JSON
+   - Exclusão de conta e dados
+   - Bloqueio local por biometria/PIN (quando disponível)
+
+### Arquitetura de navegação sugerida
+- Hoje (check-in rápido + atalhos)
+- Insights
+- Diário
+- Recuperação (Minha jornada)
+- Perfil / Configurações
+
+### O que NÃO deve ser implementado no MVP
+- Integração com wearables
+- IA interpretativa ou preditiva
+- Previsão de recaídas ou episódios
+- Comunidade, feed social ou ranking
+- Compartilhamento automático com profissionais ou familiares
+- Recomendações de tratamento, medicação ou exercício
+- Biblioteca completa de textos de NA/AA (apenas links oficiais)
+
+### Requisitos de UX
+- Interface limpa, calma e com boa hierarquia visual
+- Poucas etapas em cada fluxo
+- Linguagem simples e acolhedora
+- Suporte a leitor de tela e contraste adequado
+- Não usar cores como único meio de comunicar humor ou intensidade
+- Permitir ocultar módulos que o usuário não deseja usar
+
+### Modelo de dados (alto nível)
+Criar as tabelas principais com Row Level Security rigoroso:
+- profiles
+- user_preferences
+- check_ins
+- sleep_entries
+- behavior_categories
+- behavior_entries
+- journal_entries
+- recovery_periods
+- recovery_milestones
+- recovery_activities
+- consent_records
+
+Todo registro deve pertencer a um usuário e ser protegido por RLS. Nunca confiar apenas em filtros do lado do cliente.
+
+### Instruções de implementação
+1. Comece criando a estrutura do projeto Expo com TypeScript e Expo Router.
+2. Configure a autenticação com Supabase.
+3. Implemente o banco de dados com as tabelas e políticas de RLS.
+4. Construa a tela de onboarding (explicando finalidade, limites e privacidade).
+5. Implemente o fluxo de check-in rápido com baixa fricção.
+6. Em seguida implemente a área de Recuperação (contador + marcos + histórico).
+7. Depois o diário e os insights básicos.
+8. Priorize código limpo, tipado e bem organizado.
+9. Use componentes reutilizáveis e um design system simples.
+10. Adicione comentários explicando decisões importantes de produto (especialmente as relacionadas a não julgamento e privacidade).
+
+Antes de começar a escrever código, confirme que entendeu os princípios e o escopo. Depois comece pela estrutura do projeto e pela autenticação.
