@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { 
   CheckIn, 
   SleepEntry, 
@@ -15,6 +15,7 @@ import {
   RecoveryMilestone 
 } from '../types';
 import { storageService } from '../services/storage';
+import { supabaseSync, isSupabaseConfigured } from '../services/supabase';
 import { useAuth } from './AuthContext';
 
 interface DataContextType {
@@ -53,6 +54,8 @@ interface DataContextType {
   calculateFormattedDuration: (startDate: string) => string;
   getRecoveryMilestones: (period: RecoveryPeriod) => { days: number; title: string; achieved: boolean }[];
   reloadData: () => void;
+  syncWithCloud: () => Promise<void>;
+  isSyncing: boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -68,8 +71,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [recoveryPeriods, setRecoveryPeriods] = useState<RecoveryPeriod[]>([]);
   const [recoveryActivities, setRecoveryActivities] = useState<RecoveryActivity[]>([]);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
-  const reloadData = () => {
+  const reloadData = useCallback(() => {
     setCheckIns(storageService.getCheckIns());
     setSleepEntries(storageService.getSleepEntries());
     setCategories(storageService.getCategories());
@@ -77,11 +81,65 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setJournalEntries(storageService.getJournalEntries());
     setRecoveryPeriods(storageService.getRecoveryPeriods());
     setRecoveryActivities(storageService.getRecoveryActivities());
-  };
+  }, []);
+
+  // Sync with Supabase if active
+  const syncWithCloud = useCallback(async () => {
+    if (!isSupabaseConfigured() || !user || user.id === 'local-guest') return;
+
+    try {
+      setIsSyncing(true);
+      const [
+        cloudCheckIns,
+        cloudSleep,
+        cloudCategories,
+        cloudBehaviors,
+        cloudJournal,
+        cloudRecovery,
+      ] = await Promise.all([
+        supabaseSync.fetchCheckIns(),
+        supabaseSync.fetchSleep(),
+        supabaseSync.fetchCategories(),
+        supabaseSync.fetchBehaviors(),
+        supabaseSync.fetchJournal(),
+        supabaseSync.fetchRecoveryPeriods(),
+      ]);
+
+      if (cloudCheckIns && cloudCheckIns.length > 0) {
+        localStorage.setItem('espaco_check_ins', JSON.stringify(cloudCheckIns));
+        setCheckIns(cloudCheckIns);
+      }
+      if (cloudSleep && cloudSleep.length > 0) {
+        localStorage.setItem('espaco_sleep_entries', JSON.stringify(cloudSleep));
+        setSleepEntries(cloudSleep);
+      }
+      if (cloudCategories && cloudCategories.length > 0) {
+        localStorage.setItem('espaco_behavior_categories', JSON.stringify(cloudCategories));
+        setCategories(cloudCategories);
+      }
+      if (cloudBehaviors && cloudBehaviors.length > 0) {
+        localStorage.setItem('espaco_behavior_entries', JSON.stringify(cloudBehaviors));
+        setBehaviorEntries(cloudBehaviors);
+      }
+      if (cloudJournal && cloudJournal.length > 0) {
+        localStorage.setItem('espaco_journal_entries', JSON.stringify(cloudJournal));
+        setJournalEntries(cloudJournal);
+      }
+      if (cloudRecovery && cloudRecovery.length > 0) {
+        localStorage.setItem('espaco_recovery_periods', JSON.stringify(cloudRecovery));
+        setRecoveryPeriods(cloudRecovery);
+      }
+    } catch (err) {
+      console.warn('Erro ao sincronizar com Supabase:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     reloadData();
-  }, [user]);
+    syncWithCloud();
+  }, [user, reloadData, syncWithCloud]);
 
   // Today helpers
   const todayDateStr = new Date().toISOString().split('T')[0];
@@ -104,11 +162,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     const updated = storageService.saveCheckIn(entry);
     setCheckIns(updated);
+
+    // Background cloud sync
+    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
+      supabaseSync.upsertCheckIn(entry);
+    }
   };
 
   const deleteCheckIn = (id: string) => {
     const updated = storageService.deleteCheckIn(id);
     setCheckIns(updated);
+
+    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
+      supabaseSync.deleteCheckIn(id);
+    }
   };
 
   // Sleep operations
@@ -125,6 +192,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     const updated = storageService.saveSleepEntry(entry);
     setSleepEntries(updated);
+
+    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
+      supabaseSync.upsertSleep(entry);
+    }
   };
 
   const deleteSleepEntry = (id: string) => {
@@ -165,6 +236,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     const updated = storageService.saveBehaviorEntry(entry);
     setBehaviorEntries(updated);
+
+    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
+      supabaseSync.upsertBehavior(entry);
+    }
   };
 
   const deleteBehaviorEntry = (id: string) => {
@@ -188,11 +263,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     const updated = storageService.saveJournalEntry(entry);
     setJournalEntries(updated);
+
+    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
+      supabaseSync.upsertJournal(entry);
+    }
   };
 
   const deleteJournalEntry = (id: string) => {
     const updated = storageService.deleteJournalEntry(id);
     setJournalEntries(updated);
+
+    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
+      supabaseSync.deleteJournal(id);
+    }
   };
 
   // Recovery operations
@@ -209,6 +292,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     const updated = storageService.saveRecoveryPeriod(newPeriod);
     setRecoveryPeriods(updated);
+
+    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
+      supabaseSync.upsertRecoveryPeriod(newPeriod);
+    }
   };
 
   // Gentle restart that preserves history with total neutrality
@@ -325,6 +412,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         calculateFormattedDuration,
         getRecoveryMilestones,
         reloadData,
+        syncWithCloud,
+        isSyncing,
       }}
     >
       {children}

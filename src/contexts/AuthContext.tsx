@@ -6,6 +6,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Profile, UserPreferences, ConsentRecord } from '../types';
 import { storageService, DEFAULT_PREFERENCES, seedSampleData } from '../services/storage';
+import { supabase, isSupabaseConfigured } from '../services/supabase';
 
 interface AuthContextType {
   user: Profile | null;
@@ -13,9 +14,13 @@ interface AuthContextType {
   onboardingCompleted: boolean;
   isLocked: boolean;
   hasPin: boolean;
+  isSupabaseReady: boolean;
   loginAsGuest: () => void;
   loginWithEmail: (email: string, name?: string) => void;
-  logout: () => void;
+  signInWithSupabase: (email: string, password: string) => Promise<{ error?: string }>;
+  signUpWithSupabase: (email: string, password: string, displayName?: string) => Promise<{ error?: string }>;
+  signInWithMagicLink: (email: string) => Promise<{ error?: string }>;
+  logout: () => Promise<void>;
   updatePreferences: (newPrefs: Partial<UserPreferences>) => void;
   completeOnboarding: (prefs?: Partial<UserPreferences>, consent?: ConsentRecord) => void;
   setPin: (pin: string | null) => void;
@@ -27,6 +32,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const isSupabaseReady = isSupabaseConfigured();
+
   const [user, setUser] = useState<Profile | null>(() => storageService.getCurrentUser());
   const [preferences, setPreferences] = useState<UserPreferences>(() => storageService.getPreferences());
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean>(() => storageService.isOnboardingCompleted());
@@ -44,6 +51,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       root.classList.remove('dark');
     }
   }, [preferences.theme]);
+
+  // Synchronize Supabase Auth state if configured
+  useEffect(() => {
+    if (!supabase) return;
+
+    // Check existing Supabase session on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        const cloudUser: Profile = {
+          id: session.user.id,
+          email: session.user.email || '',
+          displayName: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || 'Usuário',
+          createdAt: session.user.created_at,
+        };
+        setUser(cloudUser);
+        storageService.setCurrentUser(cloudUser);
+      }
+    });
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        const cloudUser: Profile = {
+          id: session.user.id,
+          email: session.user.email || '',
+          displayName: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || 'Usuário',
+          createdAt: session.user.created_at,
+        };
+        setUser(cloudUser);
+        storageService.setCurrentUser(cloudUser);
+      } else if (!storageService.getCurrentUser()) {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const loginAsGuest = () => {
     const guestUser: Profile = {
@@ -68,7 +114,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(newUser);
   };
 
-  const logout = () => {
+  const signInWithSupabase = async (email: string, password: string): Promise<{ error?: string }> => {
+    if (!supabase) {
+      return { error: 'Supabase ainda não configurado nas variáveis de ambiente.' };
+    }
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (error) {
+      return { error: error.message };
+    }
+    if (data.user) {
+      const cloudUser: Profile = {
+        id: data.user.id,
+        email: data.user.email || '',
+        displayName: data.user.user_metadata?.display_name || data.user.email?.split('@')[0] || 'Usuário',
+        createdAt: data.user.created_at,
+      };
+      setUser(cloudUser);
+      storageService.setCurrentUser(cloudUser);
+    }
+    return {};
+  };
+
+  const signUpWithSupabase = async (email: string, password: string, displayName?: string): Promise<{ error?: string }> => {
+    if (!supabase) {
+      return { error: 'Supabase ainda não configurado nas variáveis de ambiente.' };
+    }
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      options: {
+        data: {
+          display_name: displayName?.trim() || email.split('@')[0],
+        },
+      },
+    });
+    if (error) {
+      return { error: error.message };
+    }
+    if (data.user) {
+      const cloudUser: Profile = {
+        id: data.user.id,
+        email: data.user.email || '',
+        displayName: displayName?.trim() || data.user.email?.split('@')[0] || 'Usuário',
+        createdAt: data.user.created_at,
+      };
+      setUser(cloudUser);
+      storageService.setCurrentUser(cloudUser);
+    }
+    return {};
+  };
+
+  const signInWithMagicLink = async (email: string): Promise<{ error?: string }> => {
+    if (!supabase) {
+      return { error: 'Supabase ainda não configurado nas variáveis de ambiente.' };
+    }
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim(),
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    if (error) {
+      return { error: error.message };
+    }
+    return {};
+  };
+
+  const logout = async () => {
+    if (supabase) {
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.warn('Erro ao sair do Supabase:', err);
+      }
+    }
     storageService.setCurrentUser(null);
     setUser(null);
   };
@@ -119,7 +241,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadDemoData = () => {
     const activeUserId = user?.id || 'local-guest';
     seedSampleData(activeUserId);
-    // Reload state after seeding
     window.location.reload();
   };
 
@@ -131,8 +252,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         onboardingCompleted,
         isLocked,
         hasPin: !!preferences.pinCode,
+        isSupabaseReady,
         loginAsGuest,
         loginWithEmail,
+        signInWithSupabase,
+        signUpWithSupabase,
+        signInWithMagicLink,
         logout,
         updatePreferences,
         completeOnboarding,
