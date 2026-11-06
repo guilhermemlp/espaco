@@ -1,0 +1,222 @@
+Aqui vai uma proposta completa e detalhada de **UI/UX** alinhada com os princípios do PRD: baixa fricção, zero julgamento, calma e autonomia.
+
+### Princípios de Design (fundação de tudo)
+
+| Princípio | Como se manifesta na interface |
+|---------|-------------------------------|
+| **Baixa fricção** | Check-in em 2–4 toques. Tudo opcional depois do mínimo. |
+| **Calma** | Espaçamento generoso, tipografia legível, cores suaves, poucas animações. |
+| **Sem julgamento** | Nunca mostrar “você quebrou a sequência”, “faltam X dias”, barras de progresso de “completude” ou rankings. |
+| **Progressive disclosure** | O essencial aparece primeiro. Detalhes só quando o usuário quiser. |
+| **Privacidade visual** | Conteúdo sensível (diário, impulsos) não aparece em previews ou notificações. |
+| **Acessibilidade** | Alvos de toque ≥ 48px, contraste alto, suporte a Dynamic Type e VoiceOver/TalkBack. |
+| **Flexibilidade** | Usuário pode ocultar módulos inteiros nas configurações. |
+
+---
+
+### 1. Onboarding (primeiro acesso)
+
+**Objetivo:** Explicar o propósito e limites sem assustar nem exigir demais.
+
+**Fluxo (máximo 5 telas):**
+
+1. **Boas-vindas**
+   - Ilustração suave (pessoa observando uma janela ou um caderno aberto)
+   - Título: “Um espaço só seu para se observar”
+   - Subtítulo curto explicando que não é diagnóstico nem obrigação
+
+2. **O que você pode registrar**
+   - Cards grandes e simples: Humor • Sono • Impulsos • Diário • Recuperação
+   - Cada um com ícone + 1 linha de descrição
+   - Botão “Continuar” e link “Pular por enquanto”
+
+3. **Privacidade e limites** (importante)
+   - Texto claro: “Seus registros são privados. Não diagnosticamos, não julgamos e não compartilhamos com ninguém.”
+   - Checkbox de consentimento essencial + link para política
+
+4. **Escolha de módulos** (opcional)
+   - Lista com switches: “Quero acompanhar humor”, “Quero acompanhar impulsos”, etc.
+   - Tudo ligado por padrão, mas o usuário pode desligar
+
+5. **Criar conta / Entrar**
+
+**Tom visual:** Fundo claro (quase off-white), tipografia serifada leve no título para transmitir acolhimento, botões grandes e arredondados.
+
+---
+
+### 2. Tela “Hoje” (Home)
+
+Essa é a tela mais importante. Deve ser o ponto de menor atrito possível.
+
+**Layout sugerido (de cima para baixo):**
+
+- **Header**
+  - Saudação suave (“Bom dia” / “Boa tarde”) + data
+  - Ícone de perfil no canto
+
+- **Card principal de Check-in** (grande e proeminente)
+  - Se ainda não fez check-in hoje:
+    - “Como você está se sentindo?”
+    - 5 círculos grandes com emojis ou faces neutras + rótulos (“Muito ruim” → “Muito bom”)
+    - Ao tocar, já salva o humor e abre opções de adicionar energia/ansiedade/emoções (ou “Salvar e continuar”)
+  - Se já fez:
+    - Mostra o humor registrado + botão “Editar” ou “Adicionar detalhes”
+
+- **Atalhos rápidos** (em linha horizontal ou grid 2x2)
+  - Sono
+  - Registrar impulso
+  - Escrever no diário
+  - Minha jornada
+
+- **Resumo discreto do dia** (só se houver dados)
+  - “Você registrou humor e sono hoje”
+  - Sem gráficos aqui (gráficos ficam em Insights)
+
+- **Bottom Tab Bar**
+  - Hoje | Insights | Diário | Recuperação | Perfil
+
+**Detalhe de UX importante:**  
+O check-in de humor pode ser feito com **um único toque**. Depois de salvar, o app oferece (sem pressionar) “Quer adicionar energia ou emoções?”.
+
+---
+
+### 3. Fluxo de Check-in detalhado
+
+Quando o usuário toca em “Adicionar detalhes”:
+
+1. **Energia** — escala horizontal de 5 pontos (muito baixa → muito alta)
+2. **Ansiedade** — mesma lógica
+3. **Emoções** — chips selecionáveis (tristeza, alegria, irritação, calma, medo, gratidão…). Incluir “Não sei identificar” e “Prefiro não responder”
+4. **Observação curta** — campo de texto de 1–2 linhas
+5. Botão “Salvar”
+
+Tudo é opcional. O usuário pode voltar a qualquer momento.
+
+---
+
+### 4. Tela de Impulsos / Comportamentos
+
+**Entrada:** Atalho “Registrar impulso” ou botão na home.
+
+**Fluxo em etapas claras (uma pergunta por tela ou seção bem separada):**
+
+1. Escolher ou criar categoria (ex: “Álcool”, “Compras”, “Masturbação”, “Comer emocional”, etc.)
+2. **Intensidade do impulso** (vontade) — escala de 0 a 10 ou 5 níveis
+3. **O comportamento ocorreu?**
+   - Não ocorreu
+   - Ocorreu uma vez
+   - Ocorreu repetidamente
+   - Prefiro não informar
+4. **Controle percebido**
+   - Tive controle
+   - Alguma dificuldade
+   - Perda de controle
+   - Não sei avaliar
+5. Contexto (opcional) e consequência (opcional)
+6. Salvar
+
+**Visual:** Cada etapa bem espaçada. Usar botões grandes de escolha em vez de dropdowns. Evitar qualquer linguagem de “sucesso” ou “falha”.
+
+---
+
+### 5. Tela “Minha jornada de recuperação”
+
+Essa tela precisa transmitir respeito e continuidade, nunca competição.
+
+**Layout:**
+
+- **Topo**
+  - Contador grande e calmo:  
+    **“492 dias”**  
+    ou  
+    **“1 ano, 4 meses e 4 dias”**  
+    (mostrar as duas formas, com a data de início abaixo)
+
+- **Marcos**
+  - Linha do tempo horizontal ou vertical suave
+  - Marcos já alcançados aparecem com um círculo preenchido
+  - Próximos marcos aparecem de forma discreta
+  - Nunca “faltam X dias para o próximo”
+
+- **Ações principais**
+  - “Registrar reunião / prática”
+  - “Escrever reflexão”
+  - “Ver períodos anteriores” (se houver)
+
+- **Histórico de períodos**
+  - Lista simples de períodos anteriores (data de início → data de fim)
+  - Linguagem neutra: “Período de 12/03/2024 a 08/09/2024”
+
+**Importante:** Em caso de reinício, o app pergunta com cuidado:  
+“Deseja encerrar o período atual e começar um novo?”  
+e deixa claro que o histórico anterior será preservado.
+
+---
+
+### 6. Tela de Diário
+
+- Lista cronológica de entradas (mais recente no topo)
+- Cada item mostra apenas data + primeiras linhas do texto
+- Toque abre a entrada completa
+- Botão flutuante “+” grande e acessível
+- Busca simples no topo
+- Ao criar/editar: editor de texto limpo, sem distrações, com data editável
+
+Nada de prompts obrigatórios. Se quiser oferecer perguntas guiadas, elas devem ser opcionais e fáceis de ignorar.
+
+---
+
+### 7. Tela de Insights
+
+**Tom:** Exploratório e humilde.
+
+- Filtro de período no topo (7 dias, 30 dias, 90 dias, personalizado)
+- Cards de gráficos simples:
+  - Humor ao longo do tempo
+  - Energia e ansiedade
+  - Sono (duração + qualidade)
+  - Frequência de impulsos por categoria
+- Embaixo de cada gráfico:
+  - “Baseado em 23 registros”
+  - “8 dias sem registro neste período”
+- Quando houver poucos dados:  
+  “Ainda não há registros suficientes para mostrar padrões.”
+
+Evitar barras de “completude” ou qualquer métrica que pareça avaliação de desempenho.
+
+---
+
+### 8. Perfil / Configurações
+
+Seções claras:
+
+- Módulos ativos (ligar/desligar)
+- Notificações (todas desligadas por padrão)
+- Privacidade e dados (exportar, excluir conta)
+- Bloqueio por biometria/PIN
+- Sobre o app (limites, o que não fazemos)
+
+---
+
+### Sistema Visual sugerido
+
+| Elemento | Recomendação |
+|--------|--------------|
+| **Cores** | Paleta calma: off-white, cinza suave, azul-acinzentado ou verde-acinzentado. Evitar vermelho forte e cores saturadas. |
+| **Tipografia** | Sans-serif limpa (Inter, SF Pro, ou similar). Tamanhos generosos. |
+| **Ícones** | Line icons simples e consistentes. Evitar ícones “felizes” ou “tristes” exagerados. |
+| **Espaçamento** | Muito generoso. A tela não deve parecer apertada. |
+| **Modo escuro** | Sim, desde o início (muito importante para uso noturno). |
+| **Animações** | Mínimas e suaves. Preferir fades a slides exagerados. |
+
+---
+
+### Resumo da experiência desejada
+
+O usuário deve sentir que está entrando em um **caderno privado e silencioso**, não em um app de produtividade ou de tratamento.  
+
+O check-in de humor precisa ser tão fácil que dê vontade de fazer mesmo em dias ruins.  
+A área de recuperação precisa transmitir continuidade e respeito, nunca cobrança.  
+Os insights devem gerar curiosidade (“interessante…”), nunca culpa (“você deveria…”).
+
+---
