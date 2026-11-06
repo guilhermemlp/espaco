@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: espaco-app
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_ENABLE_SUPABASE
+        value: "true"
+      - key: VITE_SUPABASE_URL
+        value: "https://jmhsiobyibglahjtiyth.supabase.co"
+      - key: VITE_SUPABASE_ANON_KEY
+        value: "sb_publishable_DDYJrb30o9gwxOJd5s_ROA_a0WBXx5N"
