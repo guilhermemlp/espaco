@@ -130,37 +130,42 @@ ALTER TABLE public.journal_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recovery_periods ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.consent_records ENABLE ROW LEVEL SECURITY;
 
--- Políticas de RLS: O usuário só pode ver/modificar seus próprios dados
+-- Políticas de RLS otimizadas com (select auth.uid()) para evitar reavaliação por linha
 DROP POLICY IF EXISTS "Acesso próprio perfil" ON public.profiles;
-CREATE POLICY "Acesso próprio perfil" ON public.profiles FOR ALL USING (auth.uid() = id);
+CREATE POLICY "Acesso próprio perfil" ON public.profiles FOR ALL USING ((select auth.uid()) = id);
 
 DROP POLICY IF EXISTS "Acesso próprias preferências" ON public.user_preferences;
-CREATE POLICY "Acesso próprias preferências" ON public.user_preferences FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Acesso próprias preferências" ON public.user_preferences FOR ALL USING ((select auth.uid()) = user_id);
 
 DROP POLICY IF EXISTS "Acesso próprios check-ins" ON public.check_ins;
-CREATE POLICY "Acesso próprios check-ins" ON public.check_ins FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Acesso próprios check-ins" ON public.check_ins FOR ALL USING ((select auth.uid()) = user_id);
 
 DROP POLICY IF EXISTS "Acesso próprio sono" ON public.sleep_entries;
-CREATE POLICY "Acesso próprio sono" ON public.sleep_entries FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Acesso próprio sono" ON public.sleep_entries FOR ALL USING ((select auth.uid()) = user_id);
 
 DROP POLICY IF EXISTS "Acesso próprias categorias" ON public.behavior_categories;
-CREATE POLICY "Acesso próprias categorias" ON public.behavior_categories FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Acesso próprias categorias" ON public.behavior_categories FOR ALL USING ((select auth.uid()) = user_id);
 
 DROP POLICY IF EXISTS "Acesso próprios impulsos" ON public.behavior_entries;
-CREATE POLICY "Acesso próprios impulsos" ON public.behavior_entries FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Acesso próprios impulsos" ON public.behavior_entries FOR ALL USING ((select auth.uid()) = user_id);
 
 DROP POLICY IF EXISTS "Acesso próprio diário" ON public.journal_entries;
-CREATE POLICY "Acesso próprio diário" ON public.journal_entries FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Acesso próprio diário" ON public.journal_entries FOR ALL USING ((select auth.uid()) = user_id);
 
 DROP POLICY IF EXISTS "Acesso próprios períodos" ON public.recovery_periods;
-CREATE POLICY "Acesso próprios períodos" ON public.recovery_periods FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Acesso próprios períodos" ON public.recovery_periods FOR ALL USING ((select auth.uid()) = user_id);
 
 DROP POLICY IF EXISTS "Acesso próprio consentimento" ON public.consent_records;
-CREATE POLICY "Acesso próprio consentimento" ON public.consent_records FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Acesso próprio consentimento" ON public.consent_records FOR ALL USING ((select auth.uid()) = user_id);
 
 -- Trigger para criar perfil e preferências automaticamente após cadastro
+-- Protegido com search_path imutável e execução restrita apenas ao sistema
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
 BEGIN
     INSERT INTO public.profiles (id, email, display_name)
     VALUES (new.id, new.email, COALESCE(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)));
@@ -178,7 +183,12 @@ BEGIN
 
     RETURN new;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
+
+-- Revogar permissão de chamada externa direta via RPC / API pública
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM authenticated;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
