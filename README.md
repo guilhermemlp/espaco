@@ -147,6 +147,24 @@ execute o reparo idempotente:
 
 O arquivo [`supabase/fix-advisors.sql`](supabase/fix-advisors.sql) recria a policy e o índice de cobertura sem duplicar dados.
 
+#### Leaked Password Protection Disabled
+
+Esse aviso é uma configuração de autenticação, não de banco — não dá para corrigir por SQL.
+
+1. Abra **Authentication → Sign In / Providers**.
+2. Clique no provedor **Email**.
+3. Ative **Prevent use of leaked passwords** (o Advisor tem o atalho **View settings**).
+4. Clique em **Save**.
+
+A partir daí o Supabase Auth rejeita senhas presentes em vazamentos conhecidos (consulta ao HaveIBeenPwned via k-anonymity). A checagem se aplica a senhas **novas ou alteradas**; contas existentes continuam entrando normalmente.
+
+> Recurso disponível apenas no plano **Pro ou superior**. No plano Free o toggle fica bloqueado e o aviso permanece.
+
+Recomendações no mesmo painel:
+
+- **Minimum password length:** 10 ou mais (o padrão do Supabase é 6).
+- Revise a senha das contas já criadas com senhas fracas.
+
 ---
 
 ### Solução de problemas de sincronização
