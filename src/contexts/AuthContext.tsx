@@ -38,6 +38,10 @@ interface AuthContextType {
   signInWithSupabase: (email: string, password: string) => Promise<AuthResult>;
   signUpWithSupabase: (email: string, password: string, displayName?: string) => Promise<AuthResult>;
   signInWithMagicLink: (email: string) => Promise<AuthResult>;
+  requestPasswordReset: (email: string) => Promise<AuthResult>;
+  updatePassword: (password: string) => Promise<AuthResult>;
+  isPasswordRecovery: boolean;
+  dismissPasswordRecovery: () => void;
   logout: () => Promise<void>;
   updatePreferences: (newPrefs: Partial<UserPreferences>) => void;
   completeOnboarding: (prefs?: Partial<UserPreferences>, consent?: ConsentRecord) => void;
@@ -101,6 +105,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [authLoading, setAuthLoading] = useState<boolean>(cloudAuth);
 
+  // Verdadeiro quando o usuário chegou por um link de redefinição de senha.
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+
   const [isLocked, setIsLocked] = useState<boolean>(() => {
     if (!cloudAuth) return !!storageService.getPreferences().pinCode;
     return false;
@@ -161,6 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPreferences(cloneDefaultPreferences());
     setOnboardingCompleted(false);
     setIsLocked(false);
+    setIsPasswordRecovery(false);
   }, []);
 
   /**
@@ -239,6 +247,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        // O usuário abriu um link de redefinição: pede a nova senha.
+        setIsPasswordRecovery(true);
+      }
+
       if (event === 'SIGNED_OUT') {
         resetToSignedOut();
         complete();
@@ -325,6 +338,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (error) return { error: error.message };
     return { message: 'Enviamos um link de acesso para o seu e-mail.' };
+  };
+
+  /**
+   * Envia um e-mail de redefinição de senha.
+   * A mensagem é neutra para não revelar se o e-mail tem conta.
+   */
+  const requestPasswordReset = async (email: string): Promise<AuthResult> => {
+    if (!supabase) {
+      return { error: 'Supabase não está configurado neste ambiente.' };
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: window.location.origin,
+    });
+
+    if (error) return { error: error.message };
+
+    return {
+      message:
+        'Se existir uma conta com este e-mail, enviamos um link para redefinir a senha. Confira também o spam.',
+    };
+  };
+
+  /** Remove os parâmetros do link de recuperação da barra de endereços. */
+  const clearRecoveryUrlParams = () => {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('code');
+      url.hash = '';
+      window.history.replaceState({}, '', url.pathname + url.search);
+    } catch {
+      // Sem History API: mantém a URL como está.
+    }
+  };
+
+  const dismissPasswordRecovery = () => {
+    setIsPasswordRecovery(false);
+    clearRecoveryUrlParams();
+  };
+
+  /**
+   * Define uma nova senha para a conta da sessão atual.
+   * Funciona tanto no fluxo de recuperação quanto na troca pelo app.
+   */
+  const updatePassword = async (password: string): Promise<AuthResult> => {
+    if (!supabase) {
+      return { error: 'Supabase não está configurado neste ambiente.' };
+    }
+
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) return { error: error.message };
+
+    setIsPasswordRecovery(false);
+    clearRecoveryUrlParams();
+    return { message: 'Senha atualizada com sucesso.' };
   };
 
   const logout = async () => {
@@ -526,6 +595,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithSupabase,
         signUpWithSupabase,
         signInWithMagicLink,
+        requestPasswordReset,
+        updatePassword,
+        isPasswordRecovery,
+        dismissPasswordRecovery,
         logout,
         updatePreferences,
         completeOnboarding,

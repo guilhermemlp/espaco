@@ -8,6 +8,7 @@ import { Loader2, Sparkles } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import { AuthScreen } from './components/auth/AuthScreen';
+import { SetNewPasswordScreen } from './components/auth/SetNewPasswordScreen';
 import { Header } from './components/common/Header';
 import { BottomNav, TabType } from './components/common/BottomNav';
 import { PinLockModal } from './components/common/PinLockModal';
@@ -93,10 +94,15 @@ const MainApp: React.FC = () => {
  * 3. Com sessão (ou modo local), monta os dados do usuário ativo.
  */
 const AppGate: React.FC = () => {
-  const { user, authLoading, isSupabaseReady } = useAuth();
+  const { user, authLoading, isSupabaseReady, isPasswordRecovery } = useAuth();
 
   if (authLoading) {
     return <SplashScreen label="Restaurando sua sessão..." />;
+  }
+
+  // Chegou por um link de redefinição: pede a nova senha antes de abrir o app.
+  if (isPasswordRecovery) {
+    return <SetNewPasswordScreen />;
   }
 
   if (isSupabaseReady && !user) {

@@ -20,11 +20,18 @@ import {
   User,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { MIN_PASSWORD_LENGTH, validatePassword } from '../../utils/password';
 
-type AuthMode = 'login' | 'signup' | 'magic';
+type AuthMode = 'login' | 'signup' | 'magic' | 'reset';
 
 export const AuthScreen: React.FC = () => {
-  const { signInWithSupabase, signUpWithSupabase, signInWithMagicLink, isSupabaseReady } = useAuth();
+  const {
+    signInWithSupabase,
+    signUpWithSupabase,
+    signInWithMagicLink,
+    requestPasswordReset,
+    isSupabaseReady,
+  } = useAuth();
 
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
@@ -51,7 +58,14 @@ export const AuthScreen: React.FC = () => {
       if (mode === 'login') {
         result = await signInWithSupabase(email, password);
       } else if (mode === 'signup') {
+        const passwordError = validatePassword(password);
+        if (passwordError) {
+          setError(passwordError);
+          return;
+        }
         result = await signUpWithSupabase(email, password, displayName);
+      } else if (mode === 'reset') {
+        result = await requestPasswordReset(email);
       } else {
         result = await signInWithMagicLink(email);
       }
@@ -63,7 +77,7 @@ export const AuthScreen: React.FC = () => {
 
       if (result.message) {
         setMessage(result.message);
-        if (mode === 'magic') setPassword('');
+        if (mode === 'magic' || mode === 'reset') setPassword('');
       }
     } catch (err) {
       setError(
@@ -77,7 +91,13 @@ export const AuthScreen: React.FC = () => {
   };
 
   const title =
-    mode === 'login' ? 'Entrar no seu espaço' : mode === 'signup' ? 'Criar seu espaço' : 'Entrar sem senha';
+    mode === 'login'
+      ? 'Entrar no seu espaço'
+      : mode === 'signup'
+        ? 'Criar seu espaço'
+        : mode === 'reset'
+          ? 'Recuperar acesso'
+          : 'Entrar sem senha';
 
   return (
     <div className="min-h-screen bg-stone-100 dark:bg-stone-950 text-stone-900 dark:text-stone-50 font-sans antialiased flex items-center justify-center p-4 py-10">
@@ -108,7 +128,7 @@ export const AuthScreen: React.FC = () => {
                 type="button"
                 onClick={() => switchMode('login')}
                 className={`flex-1 py-2 rounded-xl font-medium transition ${
-                  mode === 'login'
+                  mode === 'login' || mode === 'reset'
                     ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
                     : 'text-stone-500 dark:text-stone-400'
                 }`}
@@ -144,7 +164,9 @@ export const AuthScreen: React.FC = () => {
               <p className="text-xs text-stone-500 dark:text-stone-400">
                 {mode === 'magic'
                   ? 'Enviaremos um link de acesso para o seu e-mail. Sem senha para lembrar.'
-                  : 'Seus registros ficam vinculados apenas à sua conta, com acesso protegido por usuário.'}
+                  : mode === 'reset'
+                    ? 'Enviaremos um link para você definir uma nova senha. O link abre neste navegador.'
+                    : 'Seus registros ficam vinculados apenas à sua conta, com acesso protegido por usuário.'}
               </p>
             </div>
 
@@ -202,7 +224,7 @@ export const AuthScreen: React.FC = () => {
                 </div>
               </div>
 
-              {mode !== 'magic' && (
+              {mode !== 'magic' && mode !== 'reset' && (
                 <div>
                   <label className="text-xs font-medium text-stone-600 dark:text-stone-300 block mb-1">
                     Senha
@@ -212,15 +234,25 @@ export const AuthScreen: React.FC = () => {
                     <input
                       type="password"
                       required
-                      minLength={6}
+                      minLength={MIN_PASSWORD_LENGTH}
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
-                      placeholder="Mínimo de 6 caracteres"
+                      placeholder={`Mínimo de ${MIN_PASSWORD_LENGTH} caracteres`}
                       aria-label="Senha"
                       autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                       className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
+
+                  {mode === 'login' && (
+                    <button
+                      type="button"
+                      onClick={() => switchMode('reset')}
+                      className="mt-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
+                    >
+                      Esqueci minha senha
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -231,7 +263,7 @@ export const AuthScreen: React.FC = () => {
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
-                ) : mode === 'magic' ? (
+                ) : mode === 'magic' || mode === 'reset' ? (
                   <KeyRound className="w-4 h-4" />
                 ) : (
                   <ArrowRight className="w-4 h-4" />
@@ -243,10 +275,22 @@ export const AuthScreen: React.FC = () => {
                       ? 'Entrar'
                       : mode === 'signup'
                         ? 'Criar conta'
-                        : 'Enviar link de acesso'}
+                        : mode === 'reset'
+                          ? 'Enviar link de redefinição'
+                          : 'Enviar link de acesso'}
                 </span>
               </button>
             </form>
+
+            {mode === 'reset' && (
+              <button
+                type="button"
+                onClick={() => switchMode('login')}
+                className="w-full text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
+              >
+                Voltar para entrar
+              </button>
+            )}
           </>
         )}
 

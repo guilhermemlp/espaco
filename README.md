@@ -82,7 +82,7 @@ Ao contrário de aplicativos tradicionais de produtividade ou saúde mental que 
 
 ### 7. Perfil, Segurança & Configurações
 - **Controle de Módulos Ativos:** Oculte abas ou áreas inteiras que não fizerem sentido no seu momento.
-- **Conta e Sincronização:** Login por e-mail/senha ou link mágico. Cada conta vê apenas os próprios dados.
+- **Conta e Sincronização:** Login por e-mail/senha ou link mágico, redefinição de senha por e-mail e troca de senha no app. Cada conta vê apenas os próprios dados.
 - **Bloqueio por PIN:** Proteção numérica local de 4 dígitos. O PIN nunca é enviado para a nuvem.
 - **Lembretes Voluntários:** Desativados por padrão (o usuário escolhe se e quando deseja ativar).
 - **Portabilidade Total:** Exportação completa de todos os dados em **JSON** e dos check-ins em **CSV**, além de importação de backup.
@@ -158,7 +158,9 @@ Esse aviso é uma configuração de autenticação, não de banco — não dá p
 
 A partir daí o Supabase Auth rejeita senhas presentes em vazamentos conhecidos (consulta ao HaveIBeenPwned via k-anonymity). A checagem se aplica a senhas **novas ou alteradas**; contas existentes continuam entrando normalmente.
 
-> Recurso disponível apenas no plano **Pro ou superior**. No plano Free o toggle fica bloqueado e o aviso permanece.
+> Recurso disponível apenas no plano **Pro ou superior**. No plano Free o toggle fica bloqueado e o Supabase retorna: *"Configuring leaked password protection via HaveIBeenPwned.org is available on Pro Plans and up."* O aviso permanece no Advisor.
+
+**Alternativa no plano Free:** o app valida a senha no cliente antes de enviar — mínimo de 8 caracteres, bloqueio de senhas comuns e de sequências repetidas/só numéricas (ver `src/utils/password.ts`). Isso não substitui a checagem do servidor (quem chama a API direto a contorna), mas evita as escolhas mais óbvias.
 
 Recomendações no mesmo painel:
 
@@ -180,6 +182,17 @@ Em **Authentication → Notifications** (ou no bloco *Security* das configuraç�
 Essas mensagens não contêm dados de saúde nem registros do app: apenas informam que uma alteração de segurança ocorreu na conta. Servem para o usuário perceber rapidamente um acesso indevido.
 
 > Para entrega confiável em produção, configure um **SMTP próprio** (Resend, Brevo, SendGrid, Mailgun etc.) em **Authentication → SMTP Settings**. O SMTP padrão do Supabase é limitado a poucos e-mails por hora e serve apenas para testes.
+
+#### Redefinição e troca de senha
+
+O app oferece dois caminhos:
+
+- **Esqueci minha senha** (tela de entrada): envia um e-mail com link para definir uma nova senha.
+- **Alterar senha** (Perfil → Segurança da conta): troca a senha da sessão atual, sem sair do app.
+
+Regras aplicadas no cliente: no mínimo 8 caracteres, sem senhas comuns e sem sequências repetidas ou apenas numéricas.
+
+> O link de redefinição abre uma tela própria de "Definir nova senha". O app usa **PKCE**, então o link precisa ser aberto **no mesmo navegador** em que foi solicitado. Para links entre dispositivos, seria necessário mudar o fluxo de autenticação.
 
 ---
 

@@ -13,6 +13,8 @@ import {
   Database,
   Download,
   Info,
+  KeyRound,
+  Loader2,
   Lock,
   LogOut,
   RefreshCw,
@@ -25,6 +27,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
 import { storageService } from '../../services/storage';
 import { todayLocalDate } from '../../utils/date';
+import { MIN_PASSWORD_LENGTH, validatePassword } from '../../utils/password';
 import { ActiveModules } from '../../types';
 
 export const SettingsView: React.FC = () => {
@@ -34,6 +37,7 @@ export const SettingsView: React.FC = () => {
     updatePreferences,
     setPin,
     hasPin,
+    updatePassword,
     logout,
     loadDemoData,
   } = useAuth();
@@ -56,6 +60,50 @@ export const SettingsView: React.FC = () => {
   const [dataError, setDataError] = useState<string | null>(null);
   const [isWorking, setIsWorking] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  const handleChangePassword = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setPasswordError(null);
+    setPasswordMessage(null);
+
+    const validationError = validatePassword(newPassword);
+    if (validationError) {
+      setPasswordError(validationError);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('As duas senhas precisam ser iguais.');
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      const result = await updatePassword(newPassword);
+      if (result.error) {
+        setPasswordError(result.error);
+        return;
+      }
+
+      setPasswordMessage(result.message || 'Senha atualizada com sucesso.');
+      setNewPassword('');
+      setConfirmPassword('');
+      setShowPasswordChange(false);
+    } catch (error) {
+      setPasswordError(
+        error instanceof Error ? error.message : 'Não foi possível atualizar a senha.',
+      );
+    } finally {
+      setSavingPassword(false);
+    }
+  };
 
   const toggleModule = (key: keyof ActiveModules) => {
     updatePreferences({
@@ -262,6 +310,114 @@ export const SettingsView: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Segurança da conta */}
+      {isCloud && (
+        <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+          <div className="flex items-center space-x-2">
+            <KeyRound className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            <h3 className="text-sm font-serif font-medium text-stone-900 dark:text-stone-100">
+              Segurança da conta
+            </h3>
+          </div>
+
+          <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+            Você pode definir ou trocar a sua senha aqui. Se preferir, o acesso por link mágico
+            continua funcionando sem senha.
+          </p>
+
+          {passwordMessage && (
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs flex items-start space-x-2">
+              <Check className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{passwordMessage}</span>
+            </div>
+          )}
+
+          {passwordError && (
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 rounded-xl text-xs flex items-start space-x-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{passwordError}</span>
+            </div>
+          )}
+
+          {showPasswordChange ? (
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-stone-600 dark:text-stone-300 block mb-1">
+                  Nova senha
+                </label>
+                <input
+                  type="password"
+                  required
+                  minLength={MIN_PASSWORD_LENGTH}
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  placeholder={`Mínimo de ${MIN_PASSWORD_LENGTH} caracteres`}
+                  aria-label="Nova senha"
+                  autoComplete="new-password"
+                  className="w-full px-3 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-stone-600 dark:text-stone-300 block mb-1">
+                  Repita a nova senha
+                </label>
+                <input
+                  type="password"
+                  required
+                  minLength={MIN_PASSWORD_LENGTH}
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  placeholder="Digite novamente"
+                  aria-label="Repita a nova senha"
+                  autoComplete="new-password"
+                  className="w-full px-3 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  type="submit"
+                  disabled={savingPassword}
+                  className="py-2 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white text-xs font-medium flex items-center space-x-2 transition"
+                >
+                  {savingPassword ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                  )}
+                  <span>{savingPassword ? 'Salvando...' : 'Salvar senha'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPasswordChange(false);
+                    setNewPassword('');
+                    setConfirmPassword('');
+                    setPasswordError(null);
+                  }}
+                  className="py-2 px-3 text-stone-500 dark:text-stone-400 text-xs"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setShowPasswordChange(true);
+                setPasswordError(null);
+                setPasswordMessage(null);
+              }}
+              className="py-2 px-4 rounded-xl border border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-xs font-medium text-stone-800 dark:text-stone-200 transition"
+            >
+              Alterar senha
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Armazenamento e sincronização */}
       <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
