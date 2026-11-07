@@ -165,6 +165,22 @@ Recomendações no mesmo painel:
 - **Minimum password length:** 10 ou mais (o padrão do Supabase é 6).
 - Revise a senha das contas já criadas com senhas fracas.
 
+#### Notificações de segurança
+
+Em **Authentication → Notifications** (ou no bloco *Security* das configurações de Auth), ative todas as opções:
+
+- **Password changed** — avisa quando a senha muda.
+- **Email address changed** — avisa quando o e-mail da conta muda.
+- **Phone number changed** — avisa quando o telefone muda.
+- **Sign-in method linked** — avisa quando um novo método de login é vinculado.
+- **Sign-in method removed** — avisa quando um método é removido.
+- **MFA method added** — avisa quando um segundo fator é adicionado.
+- **MFA method removed** — avisa quando um segundo fator é removido.
+
+Essas mensagens não contêm dados de saúde nem registros do app: apenas informam que uma alteração de segurança ocorreu na conta. Servem para o usuário perceber rapidamente um acesso indevido.
+
+> Para entrega confiável em produção, configure um **SMTP próprio** (Resend, Brevo, SendGrid, Mailgun etc.) em **Authentication → SMTP Settings**. O SMTP padrão do Supabase é limitado a poucos e-mails por hora e serve apenas para testes.
+
 ---
 
 ### Solução de problemas de sincronização
