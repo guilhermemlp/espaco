@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { CheckIn, MoodLevel, EnergyLevel, AnxietyLevel } from '../../types';
 import { useData } from '../../contexts/DataContext';
+import { todayLocalDate } from '../../utils/date';
 import { X, Check } from 'lucide-react';
 import { MOOD_LEVELS } from './QuickMoodSelector';
 
@@ -62,7 +63,7 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
   };
 
   const handleSave = () => {
-    const todayStr = initialData?.date || new Date().toISOString().split('T')[0];
+    const todayStr = initialData?.date || todayLocalDate();
     const timeStr = initialData?.time || new Date().toTimeString().slice(0, 5);
 
     saveCheckIn(

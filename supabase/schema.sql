@@ -1,33 +1,45 @@
 -- =========================================================================
 -- BANCO DE DADOS ESPAÇO - SCHEMA COMPLETO PARA SUPABASE
--- Execute este script no SQL Editor do seu projeto Supabase
+-- Execute este script no SQL Editor do seu projeto Supabase.
+--
+-- Princípios:
+-- - Cada linha pertence a um usuário (user_id = auth.uid()).
+-- - RLS é obrigatória e valida leitura E escrita por usuário.
+-- - Nenhum PIN ou segredo local é armazenado na nuvem.
 -- =========================================================================
 
--- Habilitar extensões necessárias
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. TABELA DE PERFIS DE USUÁRIOS
+-- 1. PERFIS
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT,
     display_name TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 2. PREFERÊNCIAS DO USUÁRIO
+-- 2. PREFERÊNCIAS
 CREATE TABLE IF NOT EXISTS public.user_preferences (
     user_id UUID PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
     timezone TEXT DEFAULT 'America/Sao_Paulo' NOT NULL,
     active_modules JSONB DEFAULT '{"mood": true, "sleep": true, "behaviors": true, "journal": true, "recovery": true}'::jsonb NOT NULL,
     notifications_enabled BOOLEAN DEFAULT FALSE NOT NULL,
     notification_time TEXT DEFAULT '20:00',
-    pin_code TEXT,
     privacy_blur_enabled BOOLEAN DEFAULT FALSE NOT NULL,
     theme TEXT DEFAULT 'light' NOT NULL,
+    onboarding_completed BOOLEAN DEFAULT FALSE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 3. CHECK-INS DE HUMOR, ENERGIA E EMOÇÕES
+-- Migrações idempotentes para bancos já existentes.
+ALTER TABLE public.user_preferences
+    ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE NOT NULL;
+
+-- O PIN nunca deve existir na nuvem.
+ALTER TABLE public.user_preferences DROP COLUMN IF EXISTS pin_code;
+
+-- 3. CHECK-INS
 CREATE TABLE IF NOT EXISTS public.check_ins (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -43,7 +55,7 @@ CREATE TABLE IF NOT EXISTS public.check_ins (
     UNIQUE (user_id, date)
 );
 
--- 4. REGISTROS DE SONO
+-- 4. SONO
 CREATE TABLE IF NOT EXISTS public.sleep_entries (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -54,8 +66,12 @@ CREATE TABLE IF NOT EXISTS public.sleep_entries (
     wake_time TEXT,
     notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     UNIQUE (user_id, date)
 );
+
+ALTER TABLE public.sleep_entries
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL;
 
 -- 5. CATEGORIAS DE IMPULSOS
 CREATE TABLE IF NOT EXISTS public.behavior_categories (
@@ -64,10 +80,14 @@ CREATE TABLE IF NOT EXISTS public.behavior_categories (
     name TEXT NOT NULL,
     description TEXT,
     is_custom BOOLEAN DEFAULT TRUE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 6. REGISTROS DE IMPULSOS E COMPORTAMENTOS
+ALTER TABLE public.behavior_categories
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL;
+
+-- 6. IMPULSOS E COMPORTAMENTOS
 CREATE TABLE IF NOT EXISTS public.behavior_entries (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -80,10 +100,14 @@ CREATE TABLE IF NOT EXISTS public.behavior_entries (
     triggers TEXT,
     consequences TEXT,
     notes TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 7. DIÁRIO PESSOAL
+ALTER TABLE public.behavior_entries
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL;
+
+-- 7. DIÁRIO
 CREATE TABLE IF NOT EXISTS public.journal_entries (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -96,7 +120,7 @@ CREATE TABLE IF NOT EXISTS public.journal_entries (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 8. JORNADA DE RECUPERAÇÃO
+-- 8. PERÍODOS DE RECUPERAÇÃO
 CREATE TABLE IF NOT EXISTS public.recovery_periods (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -105,10 +129,27 @@ CREATE TABLE IF NOT EXISTS public.recovery_periods (
     end_date DATE,
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
     notes TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 9. TERMO DE CONSENTIMENTO
+ALTER TABLE public.recovery_periods
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL;
+
+-- 9. ATIVIDADES DE RECUPERAÇÃO
+CREATE TABLE IF NOT EXISTS public.recovery_activities (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    period_id UUID NOT NULL REFERENCES public.recovery_periods(id) ON DELETE CASCADE,
+    type TEXT NOT NULL CHECK (type IN ('reuniao', 'pratica_espiritual', 'meditacao', 'gratidao', 'reflexao')),
+    title TEXT NOT NULL,
+    notes TEXT,
+    date DATE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 10. CONSENTIMENTO
 CREATE TABLE IF NOT EXISTS public.consent_records (
     user_id UUID PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
     accepted_terms BOOLEAN NOT NULL,
@@ -117,7 +158,38 @@ CREATE TABLE IF NOT EXISTS public.consent_records (
 );
 
 -- =========================================================================
--- ROW LEVEL SECURITY (RLS) - PRIVACIDADE E SEGURANÇA
+-- ÍNDICES
+-- =========================================================================
+
+CREATE INDEX IF NOT EXISTS idx_check_ins_user_date
+    ON public.check_ins (user_id, date DESC);
+
+CREATE INDEX IF NOT EXISTS idx_sleep_entries_user_date
+    ON public.sleep_entries (user_id, date DESC);
+
+CREATE INDEX IF NOT EXISTS idx_behavior_categories_user
+    ON public.behavior_categories (user_id);
+
+CREATE INDEX IF NOT EXISTS idx_behavior_entries_user_date
+    ON public.behavior_entries (user_id, date DESC);
+
+CREATE INDEX IF NOT EXISTS idx_behavior_entries_category
+    ON public.behavior_entries (category_id);
+
+CREATE INDEX IF NOT EXISTS idx_journal_entries_user_date
+    ON public.journal_entries (user_id, date DESC);
+
+CREATE INDEX IF NOT EXISTS idx_recovery_periods_user_active
+    ON public.recovery_periods (user_id, is_active);
+
+CREATE INDEX IF NOT EXISTS idx_recovery_activities_user_date
+    ON public.recovery_activities (user_id, date DESC);
+
+CREATE INDEX IF NOT EXISTS idx_recovery_activities_period
+    ON public.recovery_activities (period_id);
+
+-- =========================================================================
+-- ROW LEVEL SECURITY (RLS)
 -- =========================================================================
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -128,38 +200,84 @@ ALTER TABLE public.behavior_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.behavior_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.journal_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recovery_periods ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.recovery_activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.consent_records ENABLE ROW LEVEL SECURITY;
 
--- Políticas de RLS otimizadas com (select auth.uid()) para evitar reavaliação por linha
+-- Perfil
 DROP POLICY IF EXISTS "Acesso próprio perfil" ON public.profiles;
-CREATE POLICY "Acesso próprio perfil" ON public.profiles FOR ALL USING ((select auth.uid()) = id);
+CREATE POLICY "Acesso próprio perfil" ON public.profiles
+    FOR ALL
+    USING ((select auth.uid()) = id)
+    WITH CHECK ((select auth.uid()) = id);
 
+-- Preferências
 DROP POLICY IF EXISTS "Acesso próprias preferências" ON public.user_preferences;
-CREATE POLICY "Acesso próprias preferências" ON public.user_preferences FOR ALL USING ((select auth.uid()) = user_id);
+CREATE POLICY "Acesso próprias preferências" ON public.user_preferences
+    FOR ALL
+    USING ((select auth.uid()) = user_id)
+    WITH CHECK ((select auth.uid()) = user_id);
 
+-- Check-ins
 DROP POLICY IF EXISTS "Acesso próprios check-ins" ON public.check_ins;
-CREATE POLICY "Acesso próprios check-ins" ON public.check_ins FOR ALL USING ((select auth.uid()) = user_id);
+CREATE POLICY "Acesso próprios check-ins" ON public.check_ins
+    FOR ALL
+    USING ((select auth.uid()) = user_id)
+    WITH CHECK ((select auth.uid()) = user_id);
 
+-- Sono
 DROP POLICY IF EXISTS "Acesso próprio sono" ON public.sleep_entries;
-CREATE POLICY "Acesso próprio sono" ON public.sleep_entries FOR ALL USING ((select auth.uid()) = user_id);
+CREATE POLICY "Acesso próprio sono" ON public.sleep_entries
+    FOR ALL
+    USING ((select auth.uid()) = user_id)
+    WITH CHECK ((select auth.uid()) = user_id);
 
+-- Categorias
 DROP POLICY IF EXISTS "Acesso próprias categorias" ON public.behavior_categories;
-CREATE POLICY "Acesso próprias categorias" ON public.behavior_categories FOR ALL USING ((select auth.uid()) = user_id);
+CREATE POLICY "Acesso próprias categorias" ON public.behavior_categories
+    FOR ALL
+    USING ((select auth.uid()) = user_id)
+    WITH CHECK ((select auth.uid()) = user_id);
 
+-- Impulsos
 DROP POLICY IF EXISTS "Acesso próprios impulsos" ON public.behavior_entries;
-CREATE POLICY "Acesso próprios impulsos" ON public.behavior_entries FOR ALL USING ((select auth.uid()) = user_id);
+CREATE POLICY "Acesso próprios impulsos" ON public.behavior_entries
+    FOR ALL
+    USING ((select auth.uid()) = user_id)
+    WITH CHECK ((select auth.uid()) = user_id);
 
+-- Diário
 DROP POLICY IF EXISTS "Acesso próprio diário" ON public.journal_entries;
-CREATE POLICY "Acesso próprio diário" ON public.journal_entries FOR ALL USING ((select auth.uid()) = user_id);
+CREATE POLICY "Acesso próprio diário" ON public.journal_entries
+    FOR ALL
+    USING ((select auth.uid()) = user_id)
+    WITH CHECK ((select auth.uid()) = user_id);
 
+-- Períodos de recuperação
 DROP POLICY IF EXISTS "Acesso próprios períodos" ON public.recovery_periods;
-CREATE POLICY "Acesso próprios períodos" ON public.recovery_periods FOR ALL USING ((select auth.uid()) = user_id);
+CREATE POLICY "Acesso próprios períodos" ON public.recovery_periods
+    FOR ALL
+    USING ((select auth.uid()) = user_id)
+    WITH CHECK ((select auth.uid()) = user_id);
 
+-- Atividades de recuperação
+DROP POLICY IF EXISTS "Acesso próprias atividades" ON public.recovery_activities;
+CREATE POLICY "Acesso próprias atividades" ON public.recovery_activities
+    FOR ALL
+    USING ((select auth.uid()) = user_id)
+    WITH CHECK ((select auth.uid()) = user_id);
+
+-- Consentimento
 DROP POLICY IF EXISTS "Acesso próprio consentimento" ON public.consent_records;
-CREATE POLICY "Acesso próprio consentimento" ON public.consent_records FOR ALL USING ((select auth.uid()) = user_id);
+CREATE POLICY "Acesso próprio consentimento" ON public.consent_records
+    FOR ALL
+    USING ((select auth.uid()) = user_id)
+    WITH CHECK ((select auth.uid()) = user_id);
 
--- Trigger para criar perfil e preferências automaticamente após cadastro
--- Protegido com search_path imutável e execução restrita apenas ao sistema
+-- =========================================================================
+-- CRIAÇÃO AUTOMÁTICA DE PERFIL, PREFERÊNCIAS E CATEGORIAS
+-- Trigger idempotente: pode ser reaplicado sem duplicar dados.
+-- =========================================================================
+
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -168,24 +286,32 @@ SET search_path = public, auth
 AS $$
 BEGIN
     INSERT INTO public.profiles (id, email, display_name)
-    VALUES (new.id, new.email, COALESCE(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)));
+    VALUES (
+        new.id,
+        new.email,
+        COALESCE(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1))
+    )
+    ON CONFLICT (id) DO NOTHING;
 
     INSERT INTO public.user_preferences (user_id)
-    VALUES (new.id);
+    VALUES (new.id)
+    ON CONFLICT (user_id) DO NOTHING;
 
-    -- Categorias padrão de impulsos para o novo usuário
-    INSERT INTO public.behavior_categories (user_id, name, is_custom) VALUES
-    (new.id, 'Álcool', false),
-    (new.id, 'Compras impulsivas', false),
-    (new.id, 'Comer emocional', false),
-    (new.id, 'Tempo excessivo de tela', false),
-    (new.id, 'Nicotina', false);
+    IF NOT EXISTS (
+        SELECT 1 FROM public.behavior_categories WHERE user_id = new.id
+    ) THEN
+        INSERT INTO public.behavior_categories (user_id, name, is_custom) VALUES
+            (new.id, 'Álcool', false),
+            (new.id, 'Compras impulsivas', false),
+            (new.id, 'Comer emocional', false),
+            (new.id, 'Tempo excessivo de tela', false),
+            (new.id, 'Nicotina', false);
+    END IF;
 
     RETURN new;
 END;
 $$;
 
--- Revogar permissão de chamada externa direta via RPC / API pública
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM authenticated;
@@ -194,3 +320,52 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- =========================================================================
+-- ATUALIZAÇÃO AUTOMÁTICA DE updated_at
+-- =========================================================================
+
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    new.updated_at = TIMEZONE('utc'::text, NOW());
+    RETURN new;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS set_check_ins_updated_at ON public.check_ins;
+CREATE TRIGGER set_check_ins_updated_at
+    BEFORE UPDATE ON public.check_ins
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_sleep_entries_updated_at ON public.sleep_entries;
+CREATE TRIGGER set_sleep_entries_updated_at
+    BEFORE UPDATE ON public.sleep_entries
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_behavior_categories_updated_at ON public.behavior_categories;
+CREATE TRIGGER set_behavior_categories_updated_at
+    BEFORE UPDATE ON public.behavior_categories
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_behavior_entries_updated_at ON public.behavior_entries;
+CREATE TRIGGER set_behavior_entries_updated_at
+    BEFORE UPDATE ON public.behavior_entries
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_journal_entries_updated_at ON public.journal_entries;
+CREATE TRIGGER set_journal_entries_updated_at
+    BEFORE UPDATE ON public.journal_entries
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_recovery_periods_updated_at ON public.recovery_periods;
+CREATE TRIGGER set_recovery_periods_updated_at
+    BEFORE UPDATE ON public.recovery_periods
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_recovery_activities_updated_at ON public.recovery_activities;
+CREATE TRIGGER set_recovery_activities_updated_at
+    BEFORE UPDATE ON public.recovery_activities
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();

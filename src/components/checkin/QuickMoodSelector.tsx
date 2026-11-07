@@ -17,6 +17,7 @@ import {
   Trash2 
 } from 'lucide-react';
 import { useData as useDataContext } from '../../contexts/DataContext';
+import { todayLocalDate } from '../../utils/date';
 import { CheckInDetailModal } from './CheckInDetailModal';
 
 export const MOOD_LEVELS: {
@@ -87,7 +88,7 @@ export const QuickMoodSelector: React.FC = () => {
   const [justSavedNotification, setJustSavedNotification] = useState(false);
 
   const handleSelectMood = (mood: MoodLevel) => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = todayLocalDate();
     const nowTime = new Date().toTimeString().slice(0, 5);
 
     saveCheckIn(

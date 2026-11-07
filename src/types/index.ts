@@ -62,6 +62,7 @@ export interface UserPreferences {
   pinCode?: string | null;
   privacyBlurEnabled: boolean;
   theme: 'light' | 'dark' | 'system';
+  onboardingCompleted?: boolean;
 }
 
 export interface CheckIn {

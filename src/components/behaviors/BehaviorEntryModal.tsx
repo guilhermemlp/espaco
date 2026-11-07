@@ -10,6 +10,7 @@ import {
   PerceivedControl 
 } from '../../types';
 import { useData } from '../../contexts/DataContext';
+import { todayLocalDate } from '../../utils/date';
 import { X, Flame, Check, Plus, Trash2 } from 'lucide-react';
 
 interface BehaviorEntryModalProps {
@@ -46,7 +47,7 @@ export const BehaviorEntryModal: React.FC<BehaviorEntryModalProps> = ({ initialD
   };
 
   const handleSave = () => {
-    const todayStr = initialData?.date || new Date().toISOString().split('T')[0];
+    const todayStr = initialData?.date || todayLocalDate();
     const timeStr = initialData?.time || new Date().toTimeString().slice(0, 5);
 
     saveBehaviorEntry(

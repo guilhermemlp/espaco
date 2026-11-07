@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { RecoveryActivityType } from '../../types';
 import { useData } from '../../contexts/DataContext';
+import { todayLocalDate } from '../../utils/date';
 import { X, Check, Users, Sparkles, HeartHandshake, Smile, BookOpen } from 'lucide-react';
 
 interface RecoveryActivityModalProps {
@@ -27,7 +28,7 @@ export const RecoveryActivityModal: React.FC<RecoveryActivityModalProps> = ({ pe
   const [type, setType] = useState<RecoveryActivityType>('reuniao');
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(todayLocalDate());
 
   const handleSave = () => {
     if (!title.trim()) return;

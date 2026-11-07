@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NAMeditation } from '../../types';
+import { todayLocalDate } from '../../utils/date';
 import { 
   Sparkles, 
   ExternalLink, 
@@ -31,7 +32,7 @@ export const NAMeditationCard: React.FC<NAMeditationCardProps> = ({ onReflectInJ
       const cached = localStorage.getItem(LOCAL_CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = todayLocalDate();
         if (parsed.cachedDate === todayStr && parsed.data) {
           return parsed.data;
         }
@@ -59,7 +60,7 @@ export const NAMeditationCard: React.FC<NAMeditationCardProps> = ({ onReflectInJ
       setMeditation(data);
 
       // Cache locally
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = todayLocalDate();
       localStorage.setItem(
         LOCAL_CACHE_KEY,
         JSON.stringify({ cachedDate: todayStr, data })

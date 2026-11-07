@@ -5,8 +5,9 @@
 
 import React, { useState } from 'react';
 import { useData } from '../../contexts/DataContext';
-import { LineChart, Calendar, Info, Moon, Flame, Heart, AlertCircle } from 'lucide-react';
-import { MOOD_LEVELS } from '../checkin/QuickMoodSelector';
+import { CheckIn } from '../../types';
+import { windowStartDate } from '../../utils/date';
+import { LineChart, Info, Moon, Flame, Heart, AlertCircle } from 'lucide-react';
 
 type PeriodFilter = 7 | 30 | 90 | 365;
 
@@ -14,10 +15,8 @@ export const InsightsView: React.FC = () => {
   const { checkIns, sleepEntries, behaviorEntries, categories } = useData();
   const [periodDays, setPeriodDays] = useState<PeriodFilter>(30);
 
-  // Filter data within timeframe
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - periodDays);
-  const cutoffStr = cutoffDate.toISOString().split('T')[0];
+  // Janela que termina hoje, no fuso local do dispositivo.
+  const cutoffStr = windowStartDate(periodDays);
 
   const filteredCheckIns = checkIns
     .filter(c => c.date >= cutoffStr)
@@ -46,6 +45,34 @@ export const InsightsView: React.FC = () => {
     } catch {
       return dateStr;
     }
+  };
+
+  /**
+   * Monta o caminho SVG de uma série sem imputar valores ausentes.
+   * Quando falta um registro, a linha é interrompida (começa novo "M").
+   */
+  const buildSeriesPath = (
+    items: CheckIn[],
+    getValue: (item: CheckIn) => number | null | undefined,
+    height: number,
+  ) => {
+    let started = false;
+    return items
+      .map((item, index) => {
+        const value = getValue(item);
+        if (value == null) {
+          started = false;
+          return '';
+        }
+
+        const x = (index / Math.max(1, items.length - 1)) * 380 + 10;
+        const y = height - (value / 5) * (height - 20) - 10;
+        const command = started ? 'L' : 'M';
+        started = true;
+        return `${command} ${x} ${y}`;
+      })
+      .filter(Boolean)
+      .join(' ');
   };
 
   return (
@@ -196,7 +223,7 @@ export const InsightsView: React.FC = () => {
           </div>
         </div>
 
-        {filteredCheckIns.filter(c => c.energy || c.anxiety).length < 2 ? (
+        {filteredCheckIns.filter(c => c.energy != null || c.anxiety != null).length < 2 ? (
           <div className="py-8 text-center space-y-1">
             <p className="text-xs text-stone-500 dark:text-stone-400">
               Sem dados suficientes de energia ou ansiedade neste período.
@@ -207,13 +234,9 @@ export const InsightsView: React.FC = () => {
             <div className="w-full h-36 relative flex items-end pt-4 pb-2">
               <svg className="w-full h-full overflow-visible" viewBox="0 0 400 100" preserveAspectRatio="none">
                 {/* Energy line */}
-                {filteredCheckIns.some(c => c.energy) && (
+                {filteredCheckIns.some(c => c.energy != null) && (
                   <path
-                    d={filteredCheckIns.map((item, idx) => {
-                      const x = (idx / Math.max(1, filteredCheckIns.length - 1)) * 380 + 10;
-                      const y = 100 - ((item.energy || 3) / 5) * 80 - 10;
-                      return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
-                    }).join(' ')}
+                    d={buildSeriesPath(filteredCheckIns, (item) => item.energy, 100)}
                     fill="none"
                     stroke="#F59E0B"
                     strokeWidth="2"
@@ -222,13 +245,9 @@ export const InsightsView: React.FC = () => {
                 )}
 
                 {/* Anxiety line */}
-                {filteredCheckIns.some(c => c.anxiety) && (
+                {filteredCheckIns.some(c => c.anxiety != null) && (
                   <path
-                    d={filteredCheckIns.map((item, idx) => {
-                      const x = (idx / Math.max(1, filteredCheckIns.length - 1)) * 380 + 10;
-                      const y = 100 - ((item.anxiety || 3) / 5) * 80 - 10;
-                      return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
-                    }).join(' ')}
+                    d={buildSeriesPath(filteredCheckIns, (item) => item.anxiety, 100)}
                     fill="none"
                     stroke="#14B8A6"
                     strokeWidth="2"

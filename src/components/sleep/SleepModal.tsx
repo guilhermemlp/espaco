@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { SleepEntry, SleepQuality } from '../../types';
 import { useData } from '../../contexts/DataContext';
+import { todayLocalDate } from '../../utils/date';
 import { X, Moon, Check, Trash2 } from 'lucide-react';
 
 interface SleepModalProps {
@@ -44,7 +45,7 @@ export const SleepModal: React.FC<SleepModalProps> = ({ initialData, onClose }) 
   const [notes, setNotes] = useState<string>(initialData?.notes || '');
 
   const handleSave = () => {
-    const todayStr = initialData?.date || new Date().toISOString().split('T')[0];
+    const todayStr = initialData?.date || todayLocalDate();
     const totalMinutes = hours * 60 + minutes;
 
     saveSleepEntry(

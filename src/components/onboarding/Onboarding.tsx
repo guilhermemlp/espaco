@@ -14,10 +14,7 @@ import {
   ShieldCheck, 
   Check, 
   ArrowRight, 
-  Sparkles, 
-  Lock, 
-  User, 
-  Mail 
+  Sparkles 
 } from 'lucide-react';
 import { ActiveModules } from '../../types';
 
@@ -26,12 +23,12 @@ interface OnboardingProps {
 }
 
 export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
-  const { completeOnboarding, loginWithEmail, loginAsGuest } = useAuth();
+  const { completeOnboarding } = useAuth();
   const [step, setStep] = useState<number>(1);
 
-  // Consent state
-  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(true);
-  const [acceptedPrivacy, setAcceptedPrivacy] = useState<boolean>(true);
+  // Consentimento explícito: nada pré-marcado.
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState<boolean>(false);
 
   // Active modules state
   const [modules, setModules] = useState<ActiveModules>({
@@ -42,22 +39,15 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     recovery: true,
   });
 
-  // Auth form
-  const [email, setEmail] = useState('');
-  const [displayName, setDisplayName] = useState('');
-
   const handleNext = () => {
-    if (step < 5) {
+    if (step < 4) {
       setStep(step + 1);
     }
   };
 
-  const handleFinish = (isGuest = false) => {
-    if (isGuest || !email.trim()) {
-      loginAsGuest();
-    } else {
-      loginWithEmail(email, displayName);
-    }
+  const handleFinish = () => {
+    if (!acceptedTerms || !acceptedPrivacy) return;
+
     completeOnboarding(
       { activeModules: modules },
       {
@@ -79,7 +69,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         {/* Progress indicator */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex space-x-1.5">
-            {[1, 2, 3, 4, 5].map(idx => (
+            {[1, 2, 3, 4].map(idx => (
               <div
                 key={idx}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
@@ -93,7 +83,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             ))}
           </div>
           <span className="text-xs font-medium text-stone-400">
-            Passo {step} de 5
+            Passo {step} de 4
           </span>
         </div>
 
@@ -242,7 +232,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               </div>
               <div className="flex items-start space-x-2.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                <p><strong className="text-stone-800 dark:text-stone-100">Sem compartilhamento:</strong> Seus dados residem no seu dispositivo e você pode exportá-los ou apagá-los quando desejar.</p>
+                <p><strong className="text-stone-800 dark:text-stone-100">Sem compartilhamento:</strong> Seus dados ficam vinculados à sua conta, protegidos por regras de acesso por usuário. Você pode exportá-los ou apagá-los quando desejar.</p>
               </div>
               <div className="flex items-start space-x-2.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
@@ -268,7 +258,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   onChange={(e) => setAcceptedPrivacy(e.target.checked)}
                   className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800"
                 />
-                <span>Concordo com os termos de privacidade local.</span>
+                <span>Concordo com os termos de privacidade e com o armazenamento seguro dos meus dados na minha conta.</span>
               </label>
             </div>
 
@@ -353,88 +343,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               </button>
               <button
                 type="button"
-                onClick={handleNext}
-                className="flex-1 py-3 px-6 rounded-2xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-medium text-sm flex items-center justify-center space-x-2 shadow-sm transition"
-              >
-                <span>Definir módulos</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 5: Criar Conta / Entrar */}
-        {step === 5 && (
-          <div className="space-y-5 animate-fadeIn">
-            <div className="text-center space-y-1">
-              <h2 className="text-xl font-serif font-medium text-stone-900 dark:text-stone-50">
-                Como prefere iniciar?
-              </h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
-                Você pode criar uma conta local com seu nome/e-mail ou usar o modo anônimo instantâneo.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-3 bg-stone-100 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200/60 dark:border-stone-700/60">
-                <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
-                  Identificação opcional
-                </p>
-                <div>
-                  <label className="text-xs font-medium text-stone-700 dark:text-stone-300 block mb-1">
-                    Como gostaria de ser chamado(a)?
-                  </label>
-                  <div className="relative">
-                    <User className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
-                    <input
-                      type="text"
-                      placeholder="Ex: Clara, Lucas ou deixe em branco"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-stone-700 dark:text-stone-300 block mb-1">
-                    E-mail (opcional)
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
-                    <input
-                      type="email"
-                      placeholder="seu.email@exemplo.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleFinish(false)}
-                className="w-full py-3.5 px-6 rounded-2xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-medium text-sm flex items-center justify-center space-x-2 shadow-sm transition active:scale-[0.99]"
+                onClick={handleFinish}
+                disabled={!acceptedTerms || !acceptedPrivacy}
+                className="flex-1 py-3 px-6 rounded-2xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-sm flex items-center justify-center space-x-2 shadow-sm transition"
               >
                 <span>Começar meu espaço</span>
                 <Check className="w-4 h-4" />
-              </button>
-
-              <div className="relative flex py-1 items-center">
-                <div className="flex-grow border-t border-stone-200 dark:border-stone-800"></div>
-                <span className="flex-shrink mx-4 text-xs text-stone-400 uppercase tracking-widest">ou</span>
-                <div className="flex-grow border-t border-stone-200 dark:border-stone-800"></div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleFinish(true)}
-                className="w-full py-3 px-4 rounded-2xl border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-medium flex items-center justify-center space-x-2 transition"
-              >
-                <Lock className="w-4 h-4 text-stone-400" />
-                <span>Continuar em modo anônimo local (100% privado)</span>
               </button>
             </div>
           </div>

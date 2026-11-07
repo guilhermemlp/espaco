@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import { todayLocalDate } from './src/utils/date';
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ let meditationCache: {
 // Endpoint to fetch and parse the daily meditation from Narcóticos Anônimos (NA Brasil)
 app.get('/api/meditacao', async (req, res) => {
   try {
-    const todayKey = new Date().toISOString().split('T')[0];
+    const todayKey = todayLocalDate();
     const now = Date.now();
 
     // Cache valid for 30 minutes for the same calendar date

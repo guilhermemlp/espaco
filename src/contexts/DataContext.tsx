@@ -4,19 +4,21 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { 
-  CheckIn, 
-  SleepEntry, 
-  BehaviorCategory, 
-  BehaviorEntry, 
-  JournalEntry, 
-  RecoveryPeriod, 
-  RecoveryActivity, 
-  RecoveryMilestone 
+import {
+  CheckIn,
+  SleepEntry,
+  BehaviorCategory,
+  BehaviorEntry,
+  JournalEntry,
+  RecoveryPeriod,
+  RecoveryActivity,
 } from '../types';
-import { storageService } from '../services/storage';
+import { storageService, createDefaultCategories } from '../services/storage';
 import { supabaseSync, isSupabaseConfigured } from '../services/supabase';
 import { useAuth } from './AuthContext';
+import { createId } from '../utils/id';
+import { daysBetween, parseLocalDate, todayLocalDate } from '../utils/date';
+import type { SyncTable } from '../services/storage';
 
 interface DataContextType {
   checkIns: CheckIn[];
@@ -30,7 +32,7 @@ interface DataContextType {
   deleteSleepEntry: (id: string) => void;
 
   categories: BehaviorCategory[];
-  addCategory: (name: string, description?: string) => void;
+  addCategory: (name: string, description?: string) => BehaviorCategory;
   deleteCategory: (id: string) => void;
 
   behaviorEntries: BehaviorEntry[];
@@ -50,18 +52,25 @@ interface DataContextType {
   saveRecoveryActivity: (data: Omit<RecoveryActivity, 'id' | 'userId' | 'createdAt'>) => void;
   deleteRecoveryActivity: (id: string) => void;
 
-  calculateRecoveryDays: (startDate: string) => number;
+  calculateRecoveryDays: (startDate: string, endDate?: string | null) => number;
   calculateFormattedDuration: (startDate: string) => string;
   getRecoveryMilestones: (period: RecoveryPeriod) => { days: number; title: string; achieved: boolean }[];
+
   reloadData: () => void;
   syncWithCloud: () => Promise<void>;
+  pushLocalSnapshotToCloud: () => Promise<boolean>;
+  wipeCloudData: () => Promise<boolean>;
   isSyncing: boolean;
+  isCloud: boolean;
+  syncError: string | null;
+  lastSyncedAt: string | null;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, isSupabaseReady } = useAuth();
+  const isCloud = isSupabaseReady && isSupabaseConfigured() && !!user && user.id !== 'local';
   const currentUserId = user?.id || 'local-guest';
 
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
@@ -72,6 +81,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [recoveryPeriods, setRecoveryPeriods] = useState<RecoveryPeriod[]>([]);
   const [recoveryActivities, setRecoveryActivities] = useState<RecoveryActivity[]>([]);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
 
   const reloadData = useCallback(() => {
     setCheckIns(storageService.getCheckIns());
@@ -83,259 +94,454 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRecoveryActivities(storageService.getRecoveryActivities());
   }, []);
 
-  // Sync with Supabase if active
+  /* ---------------------------------------------------------------------- */
+  /* Fila de sincronização                                                  */
+  /* ---------------------------------------------------------------------- */
+
+  const enqueueOperation = useCallback(
+    (table: SyncTable, type: 'upsert' | 'delete', entityId: string, entity?: unknown) => {
+      storageService.enqueueOutbox({
+        id: createId(),
+        table,
+        type,
+        entityId,
+        entity,
+        rowId: type === 'delete' ? entityId : undefined,
+        createdAt: new Date().toISOString(),
+      });
+    },
+    [],
+  );
+
+  const pushUpsert = useCallback(
+    (
+      table: SyncTable,
+      entityId: string,
+      entity: unknown,
+      action: () => Promise<boolean>,
+    ) => {
+      if (!isCloud) return;
+      void action()
+        .then((ok) => {
+          if (!ok) enqueueOperation(table, 'upsert', entityId, entity);
+        })
+        .catch(() => enqueueOperation(table, 'upsert', entityId, entity));
+    },
+    [isCloud, enqueueOperation],
+  );
+
+  const pushDelete = useCallback(
+    (table: SyncTable, entityId: string, action: () => Promise<boolean>) => {
+      if (!isCloud) return;
+      void action()
+        .then((ok) => {
+          if (!ok) enqueueOperation(table, 'delete', entityId);
+        })
+        .catch(() => enqueueOperation(table, 'delete', entityId));
+    },
+    [isCloud, enqueueOperation],
+  );
+
+  const flushOutbox = useCallback(async (): Promise<boolean> => {
+    const pending = storageService.getOutbox();
+    for (let index = 0; index < pending.length; index += 1) {
+      const operation = pending[index];
+      let ok = false;
+      try {
+        ok = await supabaseSync.applyOutbox(operation);
+      } catch (error) {
+        console.warn('[sync] Falha ao reaplicar operação pendente.', error);
+        ok = false;
+      }
+      if (!ok) {
+        storageService.setOutbox(pending.slice(index));
+        return false;
+      }
+    }
+    storageService.setOutbox([]);
+    return true;
+  }, []);
+
+  /* ---------------------------------------------------------------------- */
+  /* Sincronização com a nuvem                                              */
+  /* ---------------------------------------------------------------------- */
+
   const syncWithCloud = useCallback(async () => {
-    if (!isSupabaseConfigured() || !user || user.id === 'local-guest') return;
+    if (!isCloud || !user) return;
+
+    setIsSyncing(true);
+    setSyncError(null);
 
     try {
-      setIsSyncing(true);
-      const [
-        cloudCheckIns,
-        cloudSleep,
-        cloudCategories,
-        cloudBehaviors,
-        cloudJournal,
-        cloudRecovery,
-      ] = await Promise.all([
-        supabaseSync.fetchCheckIns(),
-        supabaseSync.fetchSleep(),
-        supabaseSync.fetchCategories(),
-        supabaseSync.fetchBehaviors(),
-        supabaseSync.fetchJournal(),
-        supabaseSync.fetchRecoveryPeriods(),
-      ]);
+      const flushed = await flushOutbox();
+      if (!flushed) {
+        throw new Error('Existem alterações pendentes que não puderam ser enviadas. Tentaremos novamente.');
+      }
 
-      if (cloudCheckIns && cloudCheckIns.length > 0) {
-        localStorage.setItem('espaco_check_ins', JSON.stringify(cloudCheckIns));
-        setCheckIns(cloudCheckIns);
+      const snapshot = await supabaseSync.fetchAll(user.id);
+      if (!snapshot) {
+        throw new Error(
+          'Não foi possível baixar seus dados agora. Se este é um projeto novo, execute supabase/schema.sql no Supabase.',
+        );
       }
-      if (cloudSleep && cloudSleep.length > 0) {
-        localStorage.setItem('espaco_sleep_entries', JSON.stringify(cloudSleep));
-        setSleepEntries(cloudSleep);
+
+      let cloudCategories = snapshot.categories;
+      if (cloudCategories.length === 0) {
+        cloudCategories = createDefaultCategories(user.id);
+        await Promise.all(
+          cloudCategories.map(async (category) => {
+            const ok = await supabaseSync.pushCategory(category);
+            if (!ok) enqueueOperation('behavior_categories', 'upsert', category.id, category);
+          }),
+        );
       }
-      if (cloudCategories && cloudCategories.length > 0) {
-        localStorage.setItem('espaco_behavior_categories', JSON.stringify(cloudCategories));
-        setCategories(cloudCategories);
-      }
-      if (cloudBehaviors && cloudBehaviors.length > 0) {
-        localStorage.setItem('espaco_behavior_entries', JSON.stringify(cloudBehaviors));
-        setBehaviorEntries(cloudBehaviors);
-      }
-      if (cloudJournal && cloudJournal.length > 0) {
-        localStorage.setItem('espaco_journal_entries', JSON.stringify(cloudJournal));
-        setJournalEntries(cloudJournal);
-      }
-      if (cloudRecovery && cloudRecovery.length > 0) {
-        localStorage.setItem('espaco_recovery_periods', JSON.stringify(cloudRecovery));
-        setRecoveryPeriods(cloudRecovery);
-      }
-    } catch (err) {
-      console.warn('Erro ao sincronizar com Supabase:', err);
+
+      storageService.replaceAllData({ ...snapshot, categories: cloudCategories });
+      reloadData();
+      setLastSyncedAt(new Date().toISOString());
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Falha de sincronização.';
+      setSyncError(message);
+      console.warn('[sync]', message);
     } finally {
       setIsSyncing(false);
     }
-  }, [user]);
+  }, [isCloud, user, flushOutbox, reloadData, enqueueOperation]);
+
+  /**
+   * Envia o snapshot local atual para a nuvem, respeitando a ordem das
+   * chaves estrangeiras (categorias → impulsos; períodos → atividades).
+   * Usado após importar backup ou dados legados, antes de recarregar.
+   */
+  const pushLocalSnapshotToCloud = useCallback(async (): Promise<boolean> => {
+    if (!isCloud || !user) return false;
+
+    let allOk = true;
+
+    const push = async (
+      table: SyncTable,
+      id: string,
+      entity: unknown,
+      run: () => Promise<boolean>,
+    ) => {
+      try {
+        const ok = await run();
+        if (!ok) {
+          enqueueOperation(table, 'upsert', id, entity);
+          allOk = false;
+        }
+      } catch {
+        enqueueOperation(table, 'upsert', id, entity);
+        allOk = false;
+      }
+    };
+
+    const localCategories = storageService.getCategories();
+    await Promise.all(
+      localCategories.map((entity) =>
+        push('behavior_categories', entity.id, entity, () => supabaseSync.pushCategory(entity)),
+      ),
+    );
+
+    const localBehaviors = storageService.getBehaviorEntries();
+    await Promise.all(
+      localBehaviors.map((entity) =>
+        push('behavior_entries', entity.id, entity, () => supabaseSync.pushBehavior(entity)),
+      ),
+    );
+
+    const localPeriods = storageService.getRecoveryPeriods();
+    await Promise.all(
+      localPeriods.map((entity) =>
+        push('recovery_periods', entity.id, entity, () => supabaseSync.pushRecoveryPeriod(entity)),
+      ),
+    );
+
+    const localActivities = storageService.getRecoveryActivities();
+    await Promise.all(
+      localActivities.map((entity) =>
+        push('recovery_activities', entity.id, entity, () =>
+          supabaseSync.pushRecoveryActivity(entity),
+        ),
+      ),
+    );
+
+    const localCheckIns = storageService.getCheckIns();
+    await Promise.all(
+      localCheckIns.map((entity) =>
+        push('check_ins', entity.id, entity, () => supabaseSync.pushCheckIn(entity)),
+      ),
+    );
+
+    const localSleep = storageService.getSleepEntries();
+    await Promise.all(
+      localSleep.map((entity) =>
+        push('sleep_entries', entity.id, entity, () => supabaseSync.pushSleep(entity)),
+      ),
+    );
+
+    const localJournal = storageService.getJournalEntries();
+    await Promise.all(
+      localJournal.map((entity) =>
+        push('journal_entries', entity.id, entity, () => supabaseSync.pushJournal(entity)),
+      ),
+    );
+
+    const localPreferences = storageService.getPreferences();
+    await push('user_preferences', user.id, localPreferences, () =>
+      supabaseSync.upsertPreferences(user.id, localPreferences),
+    );
+
+    return allOk;
+  }, [isCloud, user, enqueueOperation]);
+
+  const wipeCloudData = useCallback(async (): Promise<boolean> => {
+    if (!isCloud || !user) return true;
+    return supabaseSync.deleteAllUserData(user.id);
+  }, [isCloud, user]);
+
+  /* ---------------------------------------------------------------------- */
+  /* Ciclo de vida                                                          */
+  /* ---------------------------------------------------------------------- */
 
   useEffect(() => {
+    storageService.setActiveUser(isSupabaseReady ? user?.id ?? null : 'local');
     reloadData();
-    syncWithCloud();
-  }, [user, reloadData, syncWithCloud]);
 
-  // Today helpers
-  const todayDateStr = new Date().toISOString().split('T')[0];
-  const todayCheckIn = checkIns.find(c => c.date === todayDateStr) || null;
-  const todaySleepEntry = sleepEntries.find(s => s.date === todayDateStr) || null;
-  const activeRecoveryPeriod = recoveryPeriods.find(p => p.isActive) || null;
+    if (!isCloud) {
+      if (storageService.getCategories().length === 0) {
+        createDefaultCategories(currentUserId).forEach((category) =>
+          storageService.saveCategory(category),
+        );
+        reloadData();
+      }
+      return;
+    }
 
-  // CheckIn operations
+    void syncWithCloud();
+  }, [user?.id, isSupabaseReady, isCloud, currentUserId, reloadData, syncWithCloud]);
+
+  /* ---------------------------------------------------------------------- */
+  /* Helpers de "hoje"                                                      */
+  /* ---------------------------------------------------------------------- */
+
+  const todayDateStr = todayLocalDate();
+  const todayCheckIn = checkIns.find((item) => item.date === todayDateStr) || null;
+  const todaySleepEntry = sleepEntries.find((item) => item.date === todayDateStr) || null;
+  const activeRecoveryPeriod = recoveryPeriods.find((item) => item.isActive) || null;
+
+  /* ---------------------------------------------------------------------- */
+  /* Check-ins                                                              */
+  /* ---------------------------------------------------------------------- */
+
   const saveCheckIn = (
     data: Omit<CheckIn, 'id' | 'userId' | 'createdAt' | 'updatedAt'>,
-    existingId?: string
+    existingId?: string,
   ) => {
     const now = new Date().toISOString();
+    const existing = existingId ? checkIns.find((item) => item.id === existingId) : todayCheckIn;
+
     const entry: CheckIn = {
       ...data,
-      id: existingId || todayCheckIn?.id || 'chk-' + Date.now(),
+      id: existingId || existing?.id || createId(),
       userId: currentUserId,
-      createdAt: existingId ? (todayCheckIn?.createdAt || now) : now,
+      createdAt: existing?.createdAt || now,
       updatedAt: now,
     };
+
     const updated = storageService.saveCheckIn(entry);
     setCheckIns(updated);
-
-    // Background cloud sync
-    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
-      supabaseSync.upsertCheckIn(entry);
-    }
+    pushUpsert('check_ins', entry.id, entry, () => supabaseSync.pushCheckIn(entry));
   };
 
   const deleteCheckIn = (id: string) => {
     const updated = storageService.deleteCheckIn(id);
     setCheckIns(updated);
-
-    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
-      supabaseSync.deleteCheckIn(id);
-    }
+    pushDelete('check_ins', id, () => supabaseSync.deleteCheckIn(id));
   };
 
-  // Sleep operations
+  /* ---------------------------------------------------------------------- */
+  /* Sono                                                                   */
+  /* ---------------------------------------------------------------------- */
+
   const saveSleepEntry = (
     data: Omit<SleepEntry, 'id' | 'userId' | 'createdAt'>,
-    existingId?: string
+    existingId?: string,
   ) => {
     const now = new Date().toISOString();
+    const existing = existingId ? sleepEntries.find((item) => item.id === existingId) : todaySleepEntry;
+
     const entry: SleepEntry = {
       ...data,
-      id: existingId || todaySleepEntry?.id || 'slp-' + Date.now(),
+      id: existingId || existing?.id || createId(),
       userId: currentUserId,
-      createdAt: now,
+      createdAt: existing?.createdAt || now,
     };
+
     const updated = storageService.saveSleepEntry(entry);
     setSleepEntries(updated);
-
-    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
-      supabaseSync.upsertSleep(entry);
-    }
+    pushUpsert('sleep_entries', entry.id, entry, () => supabaseSync.pushSleep(entry));
   };
 
   const deleteSleepEntry = (id: string) => {
     const updated = storageService.deleteSleepEntry(id);
     setSleepEntries(updated);
+    pushDelete('sleep_entries', id, () => supabaseSync.deleteSleep(id));
   };
 
-  // Category operations
-  const addCategory = (name: string, description?: string) => {
-    const newCat: BehaviorCategory = {
-      id: 'cat-' + Date.now(),
+  /* ---------------------------------------------------------------------- */
+  /* Categorias                                                             */
+  /* ---------------------------------------------------------------------- */
+
+  const addCategory = (name: string, description?: string): BehaviorCategory => {
+    const category: BehaviorCategory = {
+      id: createId(),
       userId: currentUserId,
       name: name.trim(),
       description: description?.trim(),
       isCustom: true,
       createdAt: new Date().toISOString(),
     };
-    const updated = storageService.saveCategory(newCat);
+
+    const updated = storageService.saveCategory(category);
     setCategories(updated);
+    pushUpsert('behavior_categories', category.id, category, () =>
+      supabaseSync.pushCategory(category),
+    );
+    return category;
   };
 
   const deleteCategory = (id: string) => {
-    const updated = storageService.deleteCategory(id);
-    setCategories(updated);
+    const updatedCategories = storageService.deleteCategory(id);
+    const updatedBehaviors = storageService.deleteBehaviorEntriesByCategory(id);
+    setCategories(updatedCategories);
+    setBehaviorEntries(updatedBehaviors);
+    pushDelete('behavior_categories', id, () => supabaseSync.deleteCategory(id));
   };
 
-  // Behavior operations
+  /* ---------------------------------------------------------------------- */
+  /* Impulsos                                                               */
+  /* ---------------------------------------------------------------------- */
+
   const saveBehaviorEntry = (
     data: Omit<BehaviorEntry, 'id' | 'userId' | 'createdAt'>,
-    existingId?: string
+    existingId?: string,
   ) => {
     const now = new Date().toISOString();
+    const existing = existingId ? behaviorEntries.find((item) => item.id === existingId) : null;
+
     const entry: BehaviorEntry = {
       ...data,
-      id: existingId || 'beh-' + Date.now(),
+      id: existingId || existing?.id || createId(),
       userId: currentUserId,
-      createdAt: now,
+      createdAt: existing?.createdAt || now,
     };
+
     const updated = storageService.saveBehaviorEntry(entry);
     setBehaviorEntries(updated);
-
-    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
-      supabaseSync.upsertBehavior(entry);
-    }
+    pushUpsert('behavior_entries', entry.id, entry, () => supabaseSync.pushBehavior(entry));
   };
 
   const deleteBehaviorEntry = (id: string) => {
     const updated = storageService.deleteBehaviorEntry(id);
     setBehaviorEntries(updated);
+    pushDelete('behavior_entries', id, () => supabaseSync.deleteBehavior(id));
   };
 
-  // Journal operations
+  /* ---------------------------------------------------------------------- */
+  /* Diário                                                                 */
+  /* ---------------------------------------------------------------------- */
+
   const saveJournalEntry = (
     data: Omit<JournalEntry, 'id' | 'userId' | 'createdAt' | 'updatedAt'>,
-    existingId?: string
+    existingId?: string,
   ) => {
     const now = new Date().toISOString();
-    const existing = existingId ? journalEntries.find(j => j.id === existingId) : null;
+    const existing = existingId ? journalEntries.find((item) => item.id === existingId) : null;
+
     const entry: JournalEntry = {
       ...data,
-      id: existingId || 'jrn-' + Date.now(),
+      id: existingId || existing?.id || createId(),
       userId: currentUserId,
-      createdAt: existing ? existing.createdAt : now,
+      createdAt: existing?.createdAt || now,
       updatedAt: now,
     };
+
     const updated = storageService.saveJournalEntry(entry);
     setJournalEntries(updated);
-
-    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
-      supabaseSync.upsertJournal(entry);
-    }
+    pushUpsert('journal_entries', entry.id, entry, () => supabaseSync.pushJournal(entry));
   };
 
   const deleteJournalEntry = (id: string) => {
     const updated = storageService.deleteJournalEntry(id);
     setJournalEntries(updated);
-
-    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
-      supabaseSync.deleteJournal(id);
-    }
+    pushDelete('journal_entries', id, () => supabaseSync.deleteJournal(id));
   };
 
-  // Recovery operations
+  /* ---------------------------------------------------------------------- */
+  /* Recuperação                                                            */
+  /* ---------------------------------------------------------------------- */
+
   const saveRecoveryPeriod = (label: string, startDate: string, notes?: string) => {
-    const now = new Date().toISOString();
-    const newPeriod: RecoveryPeriod = {
-      id: 'rec-' + Date.now(),
+    const period: RecoveryPeriod = {
+      id: createId(),
       userId: currentUserId,
       label: label.trim() || 'Minha jornada',
       startDate,
       isActive: true,
       notes,
-      createdAt: now,
+      createdAt: new Date().toISOString(),
     };
-    const updated = storageService.saveRecoveryPeriod(newPeriod);
+
+    const updated = storageService.saveRecoveryPeriod(period);
     setRecoveryPeriods(updated);
 
-    if (isSupabaseConfigured() && user && user.id !== 'local-guest') {
-      supabaseSync.upsertRecoveryPeriod(newPeriod);
-    }
+    // Sincroniza o novo ciclo e o encerramento gentil dos anteriores.
+    updated.forEach((item) => {
+      pushUpsert('recovery_periods', item.id, item, () => supabaseSync.pushRecoveryPeriod(item));
+    });
   };
 
-  // Gentle restart that preserves history with total neutrality
   const restartRecoveryPeriod = (newLabel: string, newStartDate: string, notes?: string) => {
     saveRecoveryPeriod(newLabel, newStartDate, notes);
   };
 
   const saveRecoveryActivity = (data: Omit<RecoveryActivity, 'id' | 'userId' | 'createdAt'>) => {
-    const now = new Date().toISOString();
-    const entry: RecoveryActivity = {
+    const activity: RecoveryActivity = {
       ...data,
-      id: 'act-' + Date.now(),
+      id: createId(),
       userId: currentUserId,
-      createdAt: now,
+      createdAt: new Date().toISOString(),
     };
-    const updated = storageService.saveRecoveryActivity(entry);
+
+    const updated = storageService.saveRecoveryActivity(activity);
     setRecoveryActivities(updated);
+    pushUpsert('recovery_activities', activity.id, activity, () =>
+      supabaseSync.pushRecoveryActivity(activity),
+    );
   };
 
   const deleteRecoveryActivity = (id: string) => {
     const updated = storageService.deleteRecoveryActivity(id);
     setRecoveryActivities(updated);
+    pushDelete('recovery_activities', id, () => supabaseSync.deleteRecoveryActivity(id));
   };
 
-  // Helpers
-  const calculateRecoveryDays = (startDate: string): number => {
+  /* ---------------------------------------------------------------------- */
+  /* Cálculos                                                               */
+  /* ---------------------------------------------------------------------- */
+
+  const calculateRecoveryDays = (startDate: string, endDate?: string | null): number => {
     if (!startDate) return 0;
-    const start = new Date(startDate + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const diffTime = today.getTime() - start.getTime();
-    const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, days);
+    return daysBetween(startDate, endDate || todayLocalDate());
   };
 
   const calculateFormattedDuration = (startDate: string): string => {
     if (!startDate) return '0 dias';
-    const start = new Date(startDate + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+
+    const start = parseLocalDate(startDate);
+    const today = parseLocalDate(todayLocalDate());
+    if (Number.isNaN(start.getTime())) return '0 dias';
 
     let years = today.getFullYear() - start.getFullYear();
     let months = today.getMonth() - start.getMonth();
@@ -343,8 +549,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (days < 0) {
       months -= 1;
-      const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-      days += prevMonth.getDate();
+      const previousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+      days += previousMonth.getDate();
     }
     if (months < 0) {
       years -= 1;
@@ -360,7 +566,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const getRecoveryMilestones = (period: RecoveryPeriod) => {
-    const days = calculateRecoveryDays(period.startDate);
+    const days = calculateRecoveryDays(period.startDate, period.endDate || undefined);
     const milestoneSteps = [
       { days: 1, title: '24 horas de presença' },
       { days: 7, title: '1 semana' },
@@ -375,9 +581,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       { days: 730, title: '2 anos' },
     ];
 
-    return milestoneSteps.map(m => ({
-      ...m,
-      achieved: days >= m.days,
+    return milestoneSteps.map((milestone) => ({
+      ...milestone,
+      achieved: days >= milestone.days,
     }));
   };
 
@@ -413,7 +619,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getRecoveryMilestones,
         reloadData,
         syncWithCloud,
+        pushLocalSnapshotToCloud,
+        wipeCloudData,
         isSyncing,
+        isCloud,
+        syncError,
+        lastSyncedAt,
       }}
     >
       {children}

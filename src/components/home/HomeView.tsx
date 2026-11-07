@@ -11,6 +11,7 @@ import { SleepModal } from '../sleep/SleepModal';
 import { BehaviorEntryModal } from '../behaviors/BehaviorEntryModal';
 import { JournalEditorModal } from '../journal/JournalEditorModal';
 import { TabType } from '../common/BottomNav';
+import { todayLocalDate } from '../../utils/date';
 import { 
   Moon, 
   Flame, 
@@ -41,7 +42,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigateTab }) => {
   const [showJournalModal, setShowJournalModal] = useState(false);
 
   // Today's behaviors
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = todayLocalDate();
   const todayBehaviors = behaviorEntries.filter(b => b.date === todayStr);
 
   const recoveryDays = activeRecoveryPeriod 

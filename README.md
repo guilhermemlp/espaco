@@ -20,7 +20,7 @@ Ao contrário de aplicativos tradicionais de produtividade ou saúde mental que 
    $$\text{Intensidade da vontade (impulso)} \neq \text{Ocorrência do comportamento} \neq \text{Controle percebido}$$
 6. **Recuperação com Respeito à Continuidade:** Em caso de reinício, **o histórico anterior é sempre preservado com carinho e neutralidade**, reconhecendo cada dia vivido.
 7. **Transparência Amostral:** Gráficos descritivos mostram a quantidade exata de registros e dias sem dados, com aviso de amostra insuficiente quando necessário.
-8. **Privacidade por Padrão:** Registros confidenciais, diário íntimo, proteção por PIN de 4 dígitos e exportação completa em JSON e CSV.
+8. **Privacidade por Padrão:** Registros confidenciais, separados por conta, proteção por PIN de 4 dígitos (apenas local) e exportação completa em JSON e CSV.
 
 ---
 
@@ -82,10 +82,11 @@ Ao contrário de aplicativos tradicionais de produtividade ou saúde mental que 
 
 ### 7. Perfil, Segurança & Configurações
 - **Controle de Módulos Ativos:** Oculte abas ou áreas inteiras que não fizerem sentido no seu momento.
-- **Bloqueio por PIN:** Proteção numérica local de 4 dígitos.
+- **Conta e Sincronização:** Login por e-mail/senha ou link mágico. Cada conta vê apenas os próprios dados.
+- **Bloqueio por PIN:** Proteção numérica local de 4 dígitos. O PIN nunca é enviado para a nuvem.
 - **Lembretes Voluntários:** Desativados por padrão (o usuário escolhe se e quando deseja ativar).
-- **Portabilidade Total:** Exportação completa de todos os dados em **JSON** e dos check-ins em **CSV**.
-- **Direito ao Esquecimento:** Botão para apagar permanentemente todos os registros do aparelho.
+- **Portabilidade Total:** Exportação completa de todos os dados em **JSON** e dos check-ins em **CSV**, além de importação de backup.
+- **Direito ao Esquecimento:** Botão para apagar permanentemente os registros do dispositivo e, quando aplicável, também da nuvem.
 - **Modo Escuro & Claro:** Alternância suave com paleta em tons de pedra (*stone*), sálvia e esmeralda.
 
 ---
@@ -95,8 +96,64 @@ Ao contrário de aplicativos tradicionais de produtividade ou saúde mental que 
 - **Frontend:** React 19, TypeScript, Tailwind CSS v4, Lucide React (ícones acessíveis), Motion (transições suaves).
 - **Backend:** Node.js, Express, tsx.
 - **Web Scraping & Cache:** Fetch nativo com parser de HTML e cache em memória (TTL) para a meditação diária do NA Brasil.
-- **Armazenamento:** Local-First com persistência reativa e exportação/importação universal.
+- **Autenticação e Banco:** Supabase Auth + PostgreSQL com Row Level Security (RLS) por usuário.
+- **Armazenamento local:** Cache por conta (`espaco:u:<userId>:<chave>`) com fila de sincronização para uso offline.
 - **Build & Dev:** Vite 8.
+
+---
+
+## 🔐 Autenticação e Dados por Usuário
+
+O Supabase é o padrão do projeto quando `VITE_ENABLE_SUPABASE` não é `"false"` e as credenciais são válidas.
+
+- **Login:** e-mail/senha, criação de conta ou link mágico (sem senha).
+- **Banco:** cada linha tem `user_id = auth.uid()` e RLS valida leitura e escrita.
+- **Nuvem como fonte da verdade:** o dispositivo mantém um cache local por conta para desempenho e uso offline.
+- **Fila de sincronização:** se uma escrita falhar, ela é reaplicada automaticamente.
+- **PIN local:** nunca é enviado para a nuvem.
+- **Logout:** encerra a sessão e limpa o cache local daquele usuário (quando não há alterações pendentes).
+- **Modo local:** só é usado quando o Supabase não está configurado.
+
+### Configuração do Supabase
+
+1. Crie um projeto em [supabase.com](https://supabase.com).
+2. No **SQL Editor**, execute o arquivo [`supabase/schema.sql`](supabase/schema.sql).
+3. Em **Authentication → Providers**, mantenha o provedor de e-mail ativo.
+4. Copie a **Project URL** e a chave pública (anon/publishable) para o `.env`:
+
+```env
+VITE_ENABLE_SUPABASE="true"
+VITE_SUPABASE_URL="https://seu-projeto.supabase.co"
+VITE_SUPABASE_ANON_KEY="sua-chave-publica"
+```
+
+5. Reinicie o servidor (`npm run dev`).
+
+> Em produção no Render, as variáveis já são declaradas em `render.yaml`.
+
+### Avisos do Supabase Advisor
+
+Se o painel **Advisors** apontar:
+
+- `recovery_activities` com RLS habilitado e sem policy;
+- foreign key `behavior_categories_user_id_fkey` sem índice;
+
+execute o reparo idempotente:
+
+```sql
+-- no SQL Editor do Supabase
+-- conteúdo de supabase/fix-advisors.sql
+```
+
+O arquivo [`supabase/fix-advisors.sql`](supabase/fix-advisors.sql) recria a policy e o índice de cobertura sem duplicar dados.
+
+---
+
+### Solução de problemas de sincronização
+
+- **Tabela/coluna não encontrada:** reaplique `supabase/schema.sql` (ele é idempotente).
+- **Link mágico não retorna ao app:** confira **Authentication → URL Configuration** e adicione a URL do app em **Redirect URLs**.
+- **Dados não aparecem em outro dispositivo:** confirme que as duas variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` estão configuradas no ambiente de produção.
 
 ---
 

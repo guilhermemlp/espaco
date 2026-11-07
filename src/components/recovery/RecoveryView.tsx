@@ -22,6 +22,7 @@ import {
   ShieldCheck 
 } from 'lucide-react';
 import { NAMeditationCard } from './NAMeditationCard';
+import { todayLocalDate } from '../../utils/date';
 
 interface RecoveryViewProps {
   onReflectInJournal: (reflection: { tag: 'reflexao'; title: string; content: string }) => void;
@@ -43,7 +44,7 @@ export const RecoveryView: React.FC<RecoveryViewProps> = ({ onReflectInJournal }
 
   // New period setup form
   const [newLabel, setNewLabel] = useState('Minha jornada de serenidade');
-  const [newStartDate, setNewStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [newStartDate, setNewStartDate] = useState(todayLocalDate());
   const [newNotes, setNewNotes] = useState('');
 
   const previousPeriods = recoveryPeriods.filter(p => !p.isActive);
@@ -245,7 +246,7 @@ export const RecoveryView: React.FC<RecoveryViewProps> = ({ onReflectInJournal }
                 Cada período representa tempo e dedicação reais. O histórico é sempre preservado com carinho e respeito.
               </p>
               {previousPeriods.map((p) => {
-                const pastDays = calculateRecoveryDays(p.startDate);
+                const pastDays = calculateRecoveryDays(p.startDate, p.endDate);
                 return (
                   <div
                     key={p.id}

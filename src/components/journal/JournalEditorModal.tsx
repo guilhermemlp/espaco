@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { JournalEntry, JournalTag } from '../../types';
 import { useData } from '../../contexts/DataContext';
+import { todayLocalDate } from '../../utils/date';
 import { X, Check, Trash2, Calendar, Clock, Tag } from 'lucide-react';
 
 interface JournalEditorModalProps {
@@ -39,7 +40,7 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
   const [tag, setTag] = useState<JournalTag>(
     (initialData?.tag as JournalTag) ?? defaultTag ?? 'livre'
   );
-  const [date, setDate] = useState(initialData?.date || new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(initialData?.date || todayLocalDate());
   const [time, setTime] = useState(initialData?.time || new Date().toTimeString().slice(0, 5));
 
   const handleSave = () => {
