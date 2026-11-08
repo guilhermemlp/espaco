@@ -9,10 +9,24 @@
     <meta property="og:description" content="Plataforma privada de autoconhecimento e acompanhamento de recuperação sem julgamentos ou diagnósticos." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#faf8f4" />
+    <script>
+      // Aplica o último tema escolhido antes do primeiro paint, evitando o
+      // flash de tema claro em quem usa o modo escuro. A chave é espelhada
+      // por src/utils/theme.ts (THEME_MIRROR_KEY) — mantenha as duas iguais.
+      (function () {
+        try {
+          if (window.localStorage.getItem('espaco.theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {
+          /* localStorage indisponível: segue no tema claro */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

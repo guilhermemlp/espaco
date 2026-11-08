@@ -21,6 +21,7 @@ import { storageService, DEFAULT_PREFERENCES } from '../services/storage';
 import type { SyncTable } from '../services/storage';
 import { supabase, supabaseSync, isSupabaseConfigured } from '../services/supabase';
 import { createId } from '../utils/id';
+import { THEME_MIRROR_KEY, THEME_COLORS } from '../utils/theme';
 
 interface AuthResult {
   error?: string;
@@ -113,14 +114,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   });
 
-  // Aplica tema ao documento.
+  // Aplica tema ao documento, espelha a escolha no localStorage (para o
+  // script inline do index.html não piscar claro) e ajusta a barra do
+  // navegador no mobile.
   useEffect(() => {
     const root = document.documentElement;
-    if (preferences.theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+    const isDark = preferences.theme === 'dark';
+    root.classList.toggle('dark', isDark);
+
+    try {
+      window.localStorage.setItem(THEME_MIRROR_KEY, isDark ? 'dark' : 'light');
+    } catch {
+      // Modo privado ou cota cheia: seguir sem espelho.
     }
+
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', isDark ? THEME_COLORS.dark : THEME_COLORS.light);
   }, [preferences.theme]);
 
   const enqueueOperation = useCallback(
