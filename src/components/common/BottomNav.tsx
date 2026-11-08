@@ -54,7 +54,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab })
   const visibleItems = navItems.filter(item => item.visible);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-stone-50/90 dark:bg-stone-900/90 backdrop-blur-lg border-t border-stone-200/60 dark:border-stone-800/80 px-2 py-1.5 z-40 transition-colors">
+    <nav className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-sunken/90 dark:bg-raised/90 backdrop-blur-lg border-t border-line px-2 py-1.5 z-40 transition-colors">
       <div className="flex items-center justify-around">
         {visibleItems.map(item => {
           const isActive = currentTab === item.id;
@@ -65,15 +65,15 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab })
               onClick={() => onSelectTab(item.id)}
               className={`flex flex-col items-center justify-center min-w-[56px] min-h-[48px] px-2 py-1 rounded-2xl transition duration-200 ${
                 isActive
-                  ? 'text-emerald-800 dark:text-emerald-400 font-medium'
-                  : 'text-stone-400 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
+                  ? 'text-primary dark:text-primary font-medium'
+                  : 'text-ink-subtle hover:text-ink'
               }`}
               aria-label={`Aba ${item.label}`}
               aria-current={isActive ? 'page' : undefined}
             >
               <div
                 className={`p-1 rounded-xl transition duration-200 ${
-                  isActive ? 'bg-emerald-100/70 dark:bg-emerald-950/60 scale-105' : ''
+                  isActive ? 'bg-primary-soft/70 dark:bg-primary-soft/60 scale-105' : ''
                 }`}
               >
                 {item.icon}

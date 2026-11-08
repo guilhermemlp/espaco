@@ -56,7 +56,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigateTab }) => {
 
       {/* 2. Quick Action Shortcuts */}
       <div className="space-y-2.5">
-        <span className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400 px-1">
+        <span className="text-xs font-semibold uppercase tracking-wider text-ink-muted px-1">
           Atalhos Rápidos
         </span>
 
@@ -66,21 +66,21 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigateTab }) => {
             <button
               type="button"
               onClick={() => setShowSleepModal(true)}
-              className="p-4 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 text-left hover:border-indigo-300 dark:hover:border-indigo-800 shadow-xs hover:shadow-sm transition flex flex-col justify-between min-h-[96px] group"
+              className="p-4 rounded-3xl bg-raised border border-line text-left hover:border-info/25 dark:hover:border-info/25 shadow-xs hover:shadow-sm transition flex flex-col justify-between min-h-[96px] group"
             >
               <div className="flex items-center justify-between w-full">
-                <div className="p-2 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 group-hover:scale-105 transition">
+                <div className="p-2 rounded-2xl bg-info-soft dark:bg-info-soft/60 text-info dark:text-info group-hover:scale-105 transition">
                   <Moon className="w-5 h-5" />
                 </div>
                 {todaySleepEntry && (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <CheckCircle2 className="w-4 h-4 text-primary dark:text-primary" />
                 )}
               </div>
               <div>
-                <p className="text-xs font-semibold text-stone-900 dark:text-stone-100">
+                <p className="text-xs font-semibold text-ink">
                   {todaySleepEntry ? 'Sono Registrado' : 'Registrar Sono'}
                 </p>
-                <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                <p className="text-[11px] text-ink-muted mt-0.5">
                   {todaySleepEntry
                     ? `${Math.floor(todaySleepEntry.durationMinutes / 60)}h ${todaySleepEntry.durationMinutes % 60}m`
                     : 'Como foi sua noite?'}
@@ -94,23 +94,23 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigateTab }) => {
             <button
               type="button"
               onClick={() => setShowBehaviorModal(true)}
-              className="p-4 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 text-left hover:border-rose-300 dark:hover:border-rose-800 shadow-xs hover:shadow-sm transition flex flex-col justify-between min-h-[96px] group"
+              className="p-4 rounded-3xl bg-raised border border-line text-left hover:border-danger/25 dark:hover:border-danger/25 shadow-xs hover:shadow-sm transition flex flex-col justify-between min-h-[96px] group"
             >
               <div className="flex items-center justify-between w-full">
-                <div className="p-2 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 group-hover:scale-105 transition">
+                <div className="p-2 rounded-2xl bg-danger-soft dark:bg-danger-soft/60 text-danger dark:text-danger group-hover:scale-105 transition">
                   <Flame className="w-5 h-5" />
                 </div>
                 {todayBehaviors.length > 0 && (
-                  <span className="text-[10px] font-semibold bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-semibold bg-danger-soft dark:bg-danger-soft text-danger dark:text-danger px-2 py-0.5 rounded-full">
                     {todayBehaviors.length}
                   </span>
                 )}
               </div>
               <div>
-                <p className="text-xs font-semibold text-stone-900 dark:text-stone-100">
+                <p className="text-xs font-semibold text-ink">
                   Registrar Impulso
                 </p>
-                <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                <p className="text-[11px] text-ink-muted mt-0.5">
                   Observar a vontade
                 </p>
               </div>
@@ -122,16 +122,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigateTab }) => {
             <button
               type="button"
               onClick={() => setShowJournalModal(true)}
-              className="p-4 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 text-left hover:border-emerald-300 dark:hover:border-emerald-800 shadow-xs hover:shadow-sm transition flex flex-col justify-between min-h-[96px] group"
+              className="p-4 rounded-3xl bg-raised border border-line text-left hover:border-primary/25 dark:hover:border-primary/25 shadow-xs hover:shadow-sm transition flex flex-col justify-between min-h-[96px] group"
             >
-              <div className="p-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 w-fit group-hover:scale-105 transition">
+              <div className="p-2 rounded-2xl bg-primary-soft dark:bg-primary-soft/60 text-primary dark:text-primary w-fit group-hover:scale-105 transition">
                 <BookOpen className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-stone-900 dark:text-stone-100">
+                <p className="text-xs font-semibold text-ink">
                   Escrever no Diário
                 </p>
-                <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                <p className="text-[11px] text-ink-muted mt-0.5">
                   Espaço livre e confidencial
                 </p>
               </div>
@@ -143,23 +143,23 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigateTab }) => {
             <button
               type="button"
               onClick={() => onNavigateTab('recuperacao')}
-              className="p-4 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 text-left hover:border-teal-300 dark:hover:border-teal-800 shadow-xs hover:shadow-sm transition flex flex-col justify-between min-h-[96px] group"
+              className="p-4 rounded-3xl bg-raised border border-line text-left hover:border-accent/25 dark:hover:border-accent/25 shadow-xs hover:shadow-sm transition flex flex-col justify-between min-h-[96px] group"
             >
               <div className="flex items-center justify-between w-full">
-                <div className="p-2 rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-400 group-hover:scale-105 transition">
+                <div className="p-2 rounded-2xl bg-accent-soft dark:bg-accent-soft/60 text-accent dark:text-accent group-hover:scale-105 transition">
                   <Compass className="w-5 h-5" />
                 </div>
                 {activeRecoveryPeriod && (
-                  <span className="text-[11px] font-bold text-teal-700 dark:text-teal-300">
+                  <span className="text-[11px] font-bold text-accent dark:text-accent">
                     {recoveryDays}d
                   </span>
                 )}
               </div>
               <div>
-                <p className="text-xs font-semibold text-stone-900 dark:text-stone-100">
+                <p className="text-xs font-semibold text-ink">
                   Minha Jornada
                 </p>
-                <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 truncate">
+                <p className="text-[11px] text-ink-muted mt-0.5 truncate">
                   {activeRecoveryPeriod ? activeRecoveryPeriod.label : 'Acompanhar presença'}
                 </p>
               </div>
@@ -170,9 +170,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigateTab }) => {
 
       {/* 3. Discrete Day Summary (Only shown if data exists today) */}
       {(todayCheckIn || todaySleepEntry || todayBehaviors.length > 0) && (
-        <div className="p-4 rounded-3xl bg-stone-100/70 dark:bg-stone-900/60 border border-stone-200/60 dark:border-stone-800/80 flex items-center justify-between text-xs text-stone-600 dark:text-stone-400">
+        <div className="p-4 rounded-3xl bg-sunken/70 dark:bg-raised/60 border border-line flex items-center justify-between text-xs text-ink-muted">
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <Sparkles className="w-4 h-4 text-primary dark:text-primary" />
             <span>
               Você registrou{' '}
               {[
@@ -188,7 +188,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigateTab }) => {
           <button
             type="button"
             onClick={() => onNavigateTab('insights')}
-            className="text-emerald-700 dark:text-emerald-400 font-medium hover:underline flex items-center space-x-1 shrink-0"
+            className="text-primary dark:text-primary font-medium hover:underline flex items-center space-x-1 shrink-0"
           >
             <span>Ver padrões</span>
             <ArrowRight className="w-3 h-3" />

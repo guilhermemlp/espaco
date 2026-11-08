@@ -276,34 +276,34 @@ export const SettingsView: React.FC = () => {
   return (
     <div className="space-y-6 pb-20 animate-fadeIn">
       {/* Conta */}
-      <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+      <div className="bg-raised p-6 rounded-3xl border border-line shadow-xs space-y-4">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 flex items-center justify-center font-bold text-lg">
+          <div className="w-12 h-12 rounded-2xl bg-primary-soft dark:bg-primary-soft/70 text-primary dark:text-primary flex items-center justify-center font-bold text-lg">
             {user?.displayName ? user.displayName.slice(0, 1).toUpperCase() : 'E'}
           </div>
           <div className="min-w-0">
-            <h2 className="text-base font-serif font-medium text-stone-900 dark:text-stone-100 truncate">
+            <h2 className="text-base font-serif font-medium text-ink truncate">
               {user?.displayName || 'Meu espaço'}
             </h2>
-            <p className="text-xs text-stone-500 dark:text-stone-400 truncate">
+            <p className="text-xs text-ink-muted truncate">
               {isCloud ? user?.email || 'Conta na nuvem' : 'Modo local (sem conta)'}
             </p>
           </div>
         </div>
 
-        <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
-          <span className="text-xs text-stone-500">Fuso horário: {preferences.timezone}</span>
+        <div className="pt-2 border-t border-line flex items-center justify-between">
+          <span className="text-xs text-ink-muted">Fuso horário: {preferences.timezone}</span>
           {isCloud ? (
             <button
               type="button"
               onClick={() => void logout()}
-              className="text-xs font-medium text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 flex items-center space-x-1"
+              className="text-xs font-medium text-ink-muted hover:text-ink flex items-center space-x-1"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sair da conta</span>
             </button>
           ) : (
-            <span className="text-[11px] text-stone-400 flex items-center space-x-1">
+            <span className="text-[11px] text-ink-subtle flex items-center space-x-1">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Dados só neste aparelho</span>
             </span>
@@ -313,28 +313,28 @@ export const SettingsView: React.FC = () => {
 
       {/* Segurança da conta */}
       {isCloud && (
-        <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+        <div className="bg-raised p-6 rounded-3xl border border-line shadow-xs space-y-4">
           <div className="flex items-center space-x-2">
-            <KeyRound className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-            <h3 className="text-sm font-serif font-medium text-stone-900 dark:text-stone-100">
+            <KeyRound className="w-4 h-4 text-primary dark:text-primary" />
+            <h3 className="text-sm font-serif font-medium text-ink">
               Segurança da conta
             </h3>
           </div>
 
-          <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+          <p className="text-xs text-ink-muted leading-relaxed">
             Você pode definir ou trocar a sua senha aqui. Se preferir, o acesso por link mágico
             continua funcionando sem senha.
           </p>
 
           {passwordMessage && (
-            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs flex items-start space-x-2">
+            <div className="p-3 bg-primary-soft dark:bg-primary-soft/40 text-primary dark:text-primary rounded-xl text-xs flex items-start space-x-2">
               <Check className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{passwordMessage}</span>
             </div>
           )}
 
           {passwordError && (
-            <div className="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 rounded-xl text-xs flex items-start space-x-2">
+            <div className="p-3 bg-danger-soft dark:bg-danger-soft/40 text-danger dark:text-danger rounded-xl text-xs flex items-start space-x-2">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{passwordError}</span>
             </div>
@@ -343,7 +343,7 @@ export const SettingsView: React.FC = () => {
           {showPasswordChange ? (
             <form onSubmit={handleChangePassword} className="space-y-3">
               <div>
-                <label className="text-xs font-medium text-stone-600 dark:text-stone-300 block mb-1">
+                <label className="text-xs font-medium text-ink-muted block mb-1">
                   Nova senha
                 </label>
                 <input
@@ -355,12 +355,12 @@ export const SettingsView: React.FC = () => {
                   placeholder={`Mínimo de ${MIN_PASSWORD_LENGTH} caracteres`}
                   aria-label="Nova senha"
                   autoComplete="new-password"
-                  className="w-full px-3 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2.5 rounded-xl border border-line-strong bg-raised text-sm placeholder-ink-subtle focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-medium text-stone-600 dark:text-stone-300 block mb-1">
+                <label className="text-xs font-medium text-ink-muted block mb-1">
                   Repita a nova senha
                 </label>
                 <input
@@ -372,7 +372,7 @@ export const SettingsView: React.FC = () => {
                   placeholder="Digite novamente"
                   aria-label="Repita a nova senha"
                   autoComplete="new-password"
-                  className="w-full px-3 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2.5 rounded-xl border border-line-strong bg-raised text-sm placeholder-ink-subtle focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -380,7 +380,7 @@ export const SettingsView: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingPassword}
-                  className="py-2 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white text-xs font-medium flex items-center space-x-2 transition"
+                  className="py-2 px-4 rounded-xl bg-primary hover:bg-primary-hover disabled:opacity-60 text-on-primary text-xs font-medium flex items-center space-x-2 transition"
                 >
                   {savingPassword ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -397,7 +397,7 @@ export const SettingsView: React.FC = () => {
                     setConfirmPassword('');
                     setPasswordError(null);
                   }}
-                  className="py-2 px-3 text-stone-500 dark:text-stone-400 text-xs"
+                  className="py-2 px-3 text-ink-muted text-xs"
                 >
                   Cancelar
                 </button>
@@ -411,7 +411,7 @@ export const SettingsView: React.FC = () => {
                 setPasswordError(null);
                 setPasswordMessage(null);
               }}
-              className="py-2 px-4 rounded-xl border border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-xs font-medium text-stone-800 dark:text-stone-200 transition"
+              className="py-2 px-4 rounded-xl border border-line-strong hover:bg-sunken text-xs font-medium text-ink transition"
             >
               Alterar senha
             </button>
@@ -420,19 +420,19 @@ export const SettingsView: React.FC = () => {
       )}
 
       {/* Armazenamento e sincronização */}
-      <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+      <div className="bg-raised p-6 rounded-3xl border border-line shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Database className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-            <h3 className="text-sm font-serif font-medium text-stone-900 dark:text-stone-100">
+            <Database className="w-4 h-4 text-primary dark:text-primary" />
+            <h3 className="text-sm font-serif font-medium text-ink">
               Armazenamento & Sincronização
             </h3>
           </div>
           <span
             className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full ${
               isCloud
-                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                : 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300'
+                ? 'bg-primary-soft text-primary dark:bg-primary-soft dark:text-primary'
+                : 'bg-sunken text-ink-muted dark:bg-sunken dark:text-stone-300'
             }`}
           >
             {isCloud ? 'NUVEM ATIVA' : 'MODO LOCAL'}
@@ -441,14 +441,14 @@ export const SettingsView: React.FC = () => {
 
         {isCloud ? (
           <div className="space-y-3">
-            <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+            <p className="text-xs text-ink-muted leading-relaxed">
               Seus registros são salvos na sua conta, com acesso protegido por usuário. O
               dispositivo mantém um cache para uso rápido e offline.
             </p>
 
-            <div className="p-3.5 bg-stone-50 dark:bg-stone-800/50 rounded-2xl border border-stone-200/60 dark:border-stone-800 flex items-center justify-between text-xs">
-              <span className="flex items-center space-x-2 text-stone-600 dark:text-stone-300">
-                <Cloud className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <div className="p-3.5 bg-sunken rounded-2xl border border-line flex items-center justify-between text-xs">
+              <span className="flex items-center space-x-2 text-ink-muted">
+                <Cloud className="w-4 h-4 text-primary dark:text-primary" />
                 <span>
                   {isSyncing
                     ? 'Sincronizando agora...'
@@ -457,14 +457,14 @@ export const SettingsView: React.FC = () => {
                       : 'Tudo sincronizado'}
                 </span>
               </span>
-              <span className="text-[11px] text-stone-400 flex items-center space-x-1">
+              <span className="text-[11px] text-ink-subtle flex items-center space-x-1">
                 <Clock className="w-3 h-3" />
                 <span>{lastSyncedLabel || 'aguardando'}</span>
               </span>
             </div>
 
             {syncError && (
-              <div className="p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 rounded-xl text-xs flex items-start space-x-2">
+              <div className="p-3 bg-warning-soft dark:bg-warning-soft/40 text-warning dark:text-warning rounded-xl text-xs flex items-start space-x-2">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{syncError}</span>
               </div>
@@ -474,7 +474,7 @@ export const SettingsView: React.FC = () => {
               type="button"
               onClick={() => void syncWithCloud()}
               disabled={isSyncing}
-              className="py-2 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white text-xs font-medium flex items-center space-x-2 shadow-xs transition"
+              className="py-2 px-4 rounded-xl bg-primary hover:bg-primary-hover disabled:opacity-60 text-on-primary text-xs font-medium flex items-center space-x-2 shadow-xs transition"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
               <span>{isSyncing ? 'Sincronizando...' : 'Sincronizar agora'}</span>
@@ -482,9 +482,9 @@ export const SettingsView: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="p-3.5 bg-stone-50 dark:bg-stone-800/50 rounded-2xl border border-stone-200/60 dark:border-stone-800 text-xs text-stone-600 dark:text-stone-300 space-y-1.5 leading-relaxed">
-              <p className="font-semibold text-stone-800 dark:text-stone-100 flex items-center space-x-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <div className="p-3.5 bg-sunken rounded-2xl border border-line text-xs text-ink-muted space-y-1.5 leading-relaxed">
+              <p className="font-semibold text-ink flex items-center space-x-1.5">
+                <ShieldCheck className="w-4 h-4 text-primary dark:text-primary shrink-0" />
                 <span>100% dos dados residem neste aparelho</span>
               </p>
               <p>
@@ -493,7 +493,7 @@ export const SettingsView: React.FC = () => {
               </p>
             </div>
 
-            <p className="text-[11px] text-stone-400 leading-relaxed">
+            <p className="text-[11px] text-ink-subtle leading-relaxed">
               Para ativar contas e sincronização, configure{' '}
               <code className="font-mono">VITE_SUPABASE_URL</code> e{' '}
               <code className="font-mono">VITE_SUPABASE_ANON_KEY</code> e mantenha{' '}
@@ -505,12 +505,12 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Módulos ativos */}
-      <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+      <div className="bg-raised p-6 rounded-3xl border border-line shadow-xs space-y-4">
         <div>
-          <h3 className="text-sm font-serif font-medium text-stone-900 dark:text-stone-100">
+          <h3 className="text-sm font-serif font-medium text-ink">
             Módulos Ativos
           </h3>
-          <p className="text-xs text-stone-500 dark:text-stone-400">
+          <p className="text-xs text-ink-muted">
             Oculte partes do aplicativo que não fizerem sentido no seu momento.
           </p>
         </div>
@@ -529,16 +529,16 @@ export const SettingsView: React.FC = () => {
               <div
                 key={item.key}
                 onClick={() => toggleModule(key)}
-                className="flex items-center justify-between p-3 rounded-2xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-800 cursor-pointer transition hover:bg-stone-100"
+                className="flex items-center justify-between p-3 rounded-2xl bg-sunken border border-line cursor-pointer transition hover:bg-sunken"
               >
-                <span className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                <span className="text-xs font-medium text-ink">
                   {item.label}
                 </span>
                 <div
                   className={`w-5 h-5 rounded-md flex items-center justify-center transition ${
                     isChecked
-                      ? 'bg-emerald-600 text-white'
-                      : 'border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800'
+                      ? 'bg-primary text-on-primary'
+                      : 'border border-line-strong bg-raised'
                   }`}
                 >
                   {isChecked && <Check className="w-3.5 h-3.5" />}
@@ -550,20 +550,20 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Bloqueio & privacidade */}
-      <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+      <div className="bg-raised p-6 rounded-3xl border border-line shadow-xs space-y-4">
         <div className="flex items-center space-x-2">
-          <Lock className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-          <h3 className="text-sm font-serif font-medium text-stone-900 dark:text-stone-100">
+          <Lock className="w-4 h-4 text-primary dark:text-primary" />
+          <h3 className="text-sm font-serif font-medium text-ink">
             Bloqueio & Privacidade
           </h3>
         </div>
 
-        <div className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-800">
+        <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sunken border border-line">
           <div>
-            <p className="text-xs font-medium text-stone-800 dark:text-stone-200">
+            <p className="text-xs font-medium text-ink">
               PIN de 4 dígitos
             </p>
-            <p className="text-[11px] text-stone-500 dark:text-stone-400">
+            <p className="text-[11px] text-ink-muted">
               {hasPin ? 'Bloqueio ativado' : 'Sem bloqueio ativo'} · fica apenas neste dispositivo
             </p>
           </div>
@@ -572,7 +572,7 @@ export const SettingsView: React.FC = () => {
             <button
               type="button"
               onClick={handleRemovePin}
-              className="py-1.5 px-3 rounded-xl border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-300 text-xs hover:bg-stone-100 dark:hover:bg-stone-800"
+              className="py-1.5 px-3 rounded-xl border border-line-strong text-ink-muted text-xs hover:bg-sunken-strong"
             >
               Remover PIN
             </button>
@@ -580,7 +580,7 @@ export const SettingsView: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowPinSetup(true)}
-              className="py-1.5 px-3 rounded-xl bg-emerald-700 text-white text-xs font-medium hover:bg-emerald-800"
+              className="py-1.5 px-3 rounded-xl bg-primary text-on-primary text-xs font-medium hover:bg-primary-hover"
             >
               Criar PIN
             </button>
@@ -588,8 +588,8 @@ export const SettingsView: React.FC = () => {
         </div>
 
         {showPinSetup && (
-          <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl border border-emerald-200 dark:border-emerald-800 space-y-3">
-            <p className="text-xs text-stone-700 dark:text-stone-300 font-medium">
+          <div className="p-4 bg-primary-soft dark:bg-primary-soft/30 rounded-2xl border border-primary/25 dark:border-primary/25 space-y-3">
+            <p className="text-xs text-ink-muted font-medium">
               Digite o novo PIN numérico de 4 dígitos:
             </p>
             <div className="flex items-center space-x-2">
@@ -599,13 +599,13 @@ export const SettingsView: React.FC = () => {
                 value={pinInput}
                 onChange={(event) => setPinInput(event.target.value.replace(/\D/g, ''))}
                 placeholder="0000"
-                className="w-24 p-2 text-center tracking-widest text-lg font-mono rounded-xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900"
+                className="w-24 p-2 text-center tracking-widest text-lg font-mono rounded-xl border border-primary/25 dark:border-primary/25 bg-raised"
               />
               <button
                 type="button"
                 onClick={handleSavePin}
                 disabled={pinInput.length !== 4}
-                className="py-2 px-4 rounded-xl bg-emerald-700 disabled:opacity-50 text-white text-xs font-medium"
+                className="py-2 px-4 rounded-xl bg-primary disabled:opacity-50 text-on-primary text-xs font-medium"
               >
                 {pinSuccess ? 'Salvo!' : 'Salvar PIN'}
               </button>
@@ -615,7 +615,7 @@ export const SettingsView: React.FC = () => {
                   setShowPinSetup(false);
                   setPinInput('');
                 }}
-                className="py-2 px-3 text-stone-500 text-xs"
+                className="py-2 px-3 text-ink-muted text-xs"
               >
                 Cancelar
               </button>
@@ -625,20 +625,20 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Lembretes */}
-      <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-3">
+      <div className="bg-raised p-6 rounded-3xl border border-line shadow-xs space-y-3">
         <div className="flex items-center space-x-2">
-          <Bell className="w-4 h-4 text-stone-400" />
-          <h3 className="text-sm font-serif font-medium text-stone-900 dark:text-stone-100">
+          <Bell className="w-4 h-4 text-ink-subtle" />
+          <h3 className="text-sm font-serif font-medium text-ink">
             Lembretes Voluntários
           </h3>
         </div>
-        <p className="text-xs text-stone-500 dark:text-stone-400">
+        <p className="text-xs text-ink-muted">
           Por princípio de não-pressão, lembretes permanecem desativados até que você decida
           ativá-los.
         </p>
 
-        <div className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-800">
-          <span className="text-xs font-medium text-stone-800 dark:text-stone-200">
+        <div className="flex items-center justify-between p-3.5 rounded-2xl bg-sunken border border-line">
+          <span className="text-xs font-medium text-ink">
             Lembrete diário suave
           </span>
           <button
@@ -646,8 +646,8 @@ export const SettingsView: React.FC = () => {
             onClick={() => updatePreferences({ notificationsEnabled: !preferences.notificationsEnabled })}
             className={`py-1 px-3 rounded-xl text-xs font-medium transition ${
               preferences.notificationsEnabled
-                ? 'bg-emerald-600 text-white'
-                : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300'
+                ? 'bg-primary text-on-primary'
+                : 'bg-sunken-strong text-ink-muted'
             }`}
           >
             {preferences.notificationsEnabled ? 'Ativado' : 'Desativado'}
@@ -656,14 +656,14 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Exportar, importar e preservar */}
-      <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+      <div className="bg-raised p-6 rounded-3xl border border-line shadow-xs space-y-4">
         <div className="flex items-center space-x-2">
-          <Download className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-          <h3 className="text-sm font-serif font-medium text-stone-900 dark:text-stone-100">
+          <Download className="w-4 h-4 text-primary dark:text-primary" />
+          <h3 className="text-sm font-serif font-medium text-ink">
             Exportar & Preservar Dados
           </h3>
         </div>
-        <p className="text-xs text-stone-500 dark:text-stone-400">
+        <p className="text-xs text-ink-muted">
           Seus dados pertencem a você. Exporte ou restaure um arquivo completo a qualquer momento.
         </p>
 
@@ -671,7 +671,7 @@ export const SettingsView: React.FC = () => {
           <button
             type="button"
             onClick={handleExportJSON}
-            className="flex-1 py-2.5 px-4 rounded-2xl border border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-xs font-medium text-stone-800 dark:text-stone-200 flex items-center justify-center space-x-2 transition"
+            className="flex-1 py-2.5 px-4 rounded-2xl border border-line-strong hover:bg-sunken text-xs font-medium text-ink flex items-center justify-center space-x-2 transition"
           >
             <Download className="w-4 h-4" />
             <span>Exportar tudo (JSON)</span>
@@ -680,7 +680,7 @@ export const SettingsView: React.FC = () => {
           <button
             type="button"
             onClick={handleExportCSV}
-            className="flex-1 py-2.5 px-4 rounded-2xl border border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-xs font-medium text-stone-800 dark:text-stone-200 flex items-center justify-center space-x-2 transition"
+            className="flex-1 py-2.5 px-4 rounded-2xl border border-line-strong hover:bg-sunken text-xs font-medium text-ink flex items-center justify-center space-x-2 transition"
           >
             <Download className="w-4 h-4" />
             <span>Exportar check-ins (CSV)</span>
@@ -692,7 +692,7 @@ export const SettingsView: React.FC = () => {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isWorking}
-            className="flex-1 py-2.5 px-4 rounded-2xl border border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-60 text-xs font-medium text-stone-800 dark:text-stone-200 flex items-center justify-center space-x-2 transition"
+            className="flex-1 py-2.5 px-4 rounded-2xl border border-line-strong hover:bg-sunken disabled:opacity-60 text-xs font-medium text-ink flex items-center justify-center space-x-2 transition"
           >
             <Upload className="w-4 h-4" />
             <span>Importar backup (JSON)</span>
@@ -707,15 +707,15 @@ export const SettingsView: React.FC = () => {
         </div>
 
         {hasLegacyData && (
-          <div className="pt-2 border-t border-stone-100 dark:border-stone-800 space-y-2">
-            <p className="text-[11px] text-stone-500 dark:text-stone-400">
+          <div className="pt-2 border-t border-line space-y-2">
+            <p className="text-[11px] text-ink-muted">
               Encontramos dados da versão anterior deste aplicativo neste dispositivo.
             </p>
             <button
               type="button"
               onClick={() => void handleImportLegacy()}
               disabled={isWorking}
-              className="py-2 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 disabled:opacity-60 text-stone-700 dark:text-stone-300 text-xs font-medium"
+              className="py-2 px-4 rounded-xl bg-sunken hover:bg-sunken-strong dark:bg-sunken dark:hover:bg-sunken-strong disabled:opacity-60 text-ink-muted text-xs font-medium"
             >
               Importar dados antigos
             </button>
@@ -723,37 +723,37 @@ export const SettingsView: React.FC = () => {
         )}
 
         {dataError && (
-          <div className="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 rounded-xl text-xs flex items-start space-x-2">
+          <div className="p-3 bg-danger-soft dark:bg-danger-soft/40 text-danger dark:text-danger rounded-xl text-xs flex items-start space-x-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{dataError}</span>
           </div>
         )}
 
         {dataMessage && (
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs flex items-start space-x-2">
+          <div className="p-3 bg-primary-soft dark:bg-primary-soft/40 text-primary dark:text-primary rounded-xl text-xs flex items-start space-x-2">
             <Check className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{dataMessage}</span>
           </div>
         )}
 
-        <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
-          <span className="text-xs text-stone-400">Quer testar com dados de exemplo?</span>
+        <div className="pt-2 border-t border-line flex items-center justify-between">
+          <span className="text-xs text-ink-subtle">Quer testar com dados de exemplo?</span>
           <button
             type="button"
             onClick={() => void handleDemoData()}
             disabled={isWorking}
-            className="py-1.5 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 disabled:opacity-60 text-stone-700 dark:text-stone-300 text-xs font-medium flex items-center space-x-1.5 transition"
+            className="py-1.5 px-3 rounded-xl bg-sunken hover:bg-sunken-strong dark:bg-sunken dark:hover:bg-sunken-strong disabled:opacity-60 text-ink-muted text-xs font-medium flex items-center space-x-1.5 transition"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <Sparkles className="w-3.5 h-3.5 text-warning" />
             <span>Carregar exemplo</span>
           </button>
         </div>
       </div>
 
       {/* Manifesto */}
-      <div className="bg-stone-100 dark:bg-stone-800/40 p-5 rounded-3xl border border-stone-200/60 dark:border-stone-800 space-y-2 text-xs text-stone-600 dark:text-stone-400">
-        <div className="flex items-center space-x-2 text-stone-800 dark:text-stone-200 font-medium">
-          <Info className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+      <div className="bg-sunken p-5 rounded-3xl border border-line space-y-2 text-xs text-ink-muted">
+        <div className="flex items-center space-x-2 text-ink font-medium">
+          <Info className="w-4 h-4 text-primary dark:text-primary" />
           <span>Compromissos Éticos do Espaço</span>
         </div>
         <ul className="space-y-1 list-disc list-inside text-[11px] leading-relaxed">
@@ -770,7 +770,7 @@ export const SettingsView: React.FC = () => {
           type="button"
           onClick={() => void handleWipeAll()}
           disabled={isWorking}
-          className="text-xs text-rose-600 dark:text-rose-400 hover:underline disabled:opacity-60 flex items-center justify-center space-x-1 mx-auto"
+          className="text-xs text-danger dark:text-danger hover:underline disabled:opacity-60 flex items-center justify-center space-x-1 mx-auto"
         >
           <Trash2 className="w-3.5 h-3.5" />
           <span>
@@ -778,7 +778,7 @@ export const SettingsView: React.FC = () => {
           </span>
         </button>
         {isCloud && (
-          <p className="text-[10px] text-stone-400">
+          <p className="text-[10px] text-ink-subtle">
             Sua conta de acesso é mantida; os registros são apagados.
           </p>
         )}

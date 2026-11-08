@@ -18,12 +18,12 @@ interface JournalEditorModalProps {
 }
 
 export const JOURNAL_TAG_LABELS: { tag: JournalTag; label: string; color: string }[] = [
-  { tag: 'livre', label: 'Escrita livre', color: 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300' },
-  { tag: 'reflexao', label: 'Reflexão da Meditação', color: 'bg-teal-100 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300' },
-  { tag: 'reuniao', label: 'Reunião de Apoio', color: 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300' },
-  { tag: 'gratidao', label: 'Gratidão', color: 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300' },
-  { tag: 'vitoria', label: 'Vitória Pessoal', color: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300' },
-  { tag: 'dificuldade', label: 'Momento Difícil', color: 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300' },
+  { tag: 'livre', label: 'Escrita livre', color: 'bg-sunken text-ink-muted' },
+  { tag: 'reflexao', label: 'Reflexão da Meditação', color: 'bg-accent-soft dark:bg-accent-soft/60 text-accent dark:text-accent' },
+  { tag: 'reuniao', label: 'Reunião de Apoio', color: 'bg-info-soft dark:bg-info-soft/60 text-info dark:text-info' },
+  { tag: 'gratidao', label: 'Gratidão', color: 'bg-warning-soft dark:bg-warning-soft/60 text-warning dark:text-warning' },
+  { tag: 'vitoria', label: 'Vitória Pessoal', color: 'bg-primary-soft dark:bg-primary-soft/60 text-primary dark:text-primary' },
+  { tag: 'dificuldade', label: 'Momento Difícil', color: 'bg-danger-soft dark:bg-danger-soft/60 text-danger dark:text-danger' },
 ];
 
 export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({ 
@@ -62,17 +62,17 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="w-full max-w-lg bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 max-h-[90vh] overflow-y-auto flex flex-col transition-colors animate-slideUp">
+      <div className="w-full max-w-lg bg-raised rounded-3xl shadow-2xl border border-line max-h-[90vh] overflow-y-auto flex flex-col transition-colors animate-slideUp">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between">
-          <div className="flex items-center space-x-2 text-stone-500 dark:text-stone-400 text-xs">
+        <div className="px-6 py-4 border-b border-line flex items-center justify-between">
+          <div className="flex items-center space-x-2 text-ink-muted text-xs">
             <span className="flex items-center space-x-1">
               <Calendar className="w-3.5 h-3.5" />
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="bg-transparent border-0 p-0 text-xs text-stone-700 dark:text-stone-300 focus:ring-0 cursor-pointer"
+                className="bg-transparent border-0 p-0 text-xs text-ink-muted focus:ring-0 cursor-pointer"
               />
             </span>
             <span>•</span>
@@ -82,7 +82,7 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="bg-transparent border-0 p-0 text-xs text-stone-700 dark:text-stone-300 focus:ring-0 cursor-pointer"
+                className="bg-transparent border-0 p-0 text-xs text-ink-muted focus:ring-0 cursor-pointer"
               />
             </span>
           </div>
@@ -90,7 +90,7 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+            className="p-1.5 rounded-xl text-ink-subtle hover:text-ink hover:bg-sunken-strong transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -100,7 +100,7 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
         <div className="p-6 space-y-4 flex-1 flex flex-col">
           {/* Tag Selector */}
           <div>
-            <div className="flex items-center space-x-1.5 text-xs text-stone-500 dark:text-stone-400 mb-2 font-medium">
+            <div className="flex items-center space-x-1.5 text-xs text-ink-muted mb-2 font-medium">
               <Tag className="w-3.5 h-3.5" />
               <span>Tipo de escrita:</span>
             </div>
@@ -112,8 +112,8 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
                   onClick={() => setTag(item.tag)}
                   className={`py-1 px-2.5 rounded-xl text-xs font-medium border transition ${
                     tag === item.tag
-                      ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-500/20'
-                      : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800/40'
+                      ? 'border-primary bg-primary-soft dark:bg-primary-soft/40 text-primary dark:text-primary ring-2 ring-primary/20'
+                      : 'border-line text-ink-muted hover:bg-sunken'
                   }`}
                 >
                   {item.label}
@@ -127,7 +127,7 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
             placeholder="Título ou tema (opcional)"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full font-serif text-lg font-medium text-stone-900 dark:text-stone-100 placeholder-stone-400 bg-transparent border-0 border-b border-stone-100 dark:border-stone-800 pb-2 focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-500"
+            className="w-full font-serif text-lg font-medium text-ink placeholder-ink-subtle bg-transparent border-0 border-b border-line pb-2 focus:outline-none focus:border-primary dark:focus:border-primary"
           />
 
           <textarea
@@ -135,12 +135,12 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
             rows={9}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full flex-1 p-3 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200 dark:border-stone-800 text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none leading-relaxed"
+            className="w-full flex-1 p-3 rounded-2xl bg-sunken border border-line text-sm text-ink placeholder-ink-subtle focus:outline-none focus:ring-2 focus:ring-primary resize-none leading-relaxed"
           />
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-stone-50 dark:bg-stone-900 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
+        <div className="p-4 bg-sunken dark:bg-raised border-t border-line flex items-center justify-between">
           {initialData ? (
             <button
               type="button"
@@ -150,7 +150,7 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
                   onClose();
                 }
               }}
-              className="p-2.5 text-stone-400 hover:text-rose-600 rounded-xl transition"
+              className="p-2.5 text-ink-subtle hover:text-danger rounded-xl transition"
               title="Excluir"
             >
               <Trash2 className="w-4 h-4" />
@@ -161,7 +161,7 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="py-2.5 px-4 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-800 text-sm font-medium transition"
+              className="py-2.5 px-4 rounded-xl text-ink-muted hover:text-ink text-sm font-medium transition"
             >
               Cancelar
             </button>
@@ -169,7 +169,7 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
               type="button"
               disabled={!content.trim() && !title.trim()}
               onClick={handleSave}
-              className="py-2.5 px-6 rounded-2xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-sm flex items-center space-x-2 shadow-sm transition"
+              className="py-2.5 px-6 rounded-2xl bg-primary hover:bg-primary-hover dark:bg-primary disabled:opacity-50 text-on-primary font-medium text-sm flex items-center space-x-2 shadow-sm transition"
             >
               <Check className="w-4 h-4" />
               <span>Salvar no Diário</span>

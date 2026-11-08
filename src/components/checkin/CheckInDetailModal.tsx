@@ -87,21 +87,21 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-900/60 backdrop-blur-sm p-0 sm:p-4 overflow-y-auto">
-      <div className="w-full max-w-lg bg-white dark:bg-stone-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 max-h-[90vh] overflow-y-auto flex flex-col transition-colors animate-slideUp">
+      <div className="w-full max-w-lg bg-raised rounded-t-3xl sm:rounded-3xl shadow-2xl border border-line max-h-[90vh] overflow-y-auto flex flex-col transition-colors animate-slideUp">
         {/* Header */}
-        <div className="sticky top-0 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md px-6 py-4 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-raised/95 dark:bg-raised/95 backdrop-blur-md px-6 py-4 border-b border-line flex items-center justify-between z-10">
           <div>
-            <h2 className="text-lg font-serif font-medium text-stone-900 dark:text-stone-100">
+            <h2 className="text-lg font-serif font-medium text-ink">
               Detalhes do seu momento
             </h2>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
+            <p className="text-xs text-ink-muted">
               Tudo aqui é opcional. Preencha apenas o que fizer sentido para você.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+            className="p-2 rounded-xl text-ink-subtle hover:text-ink hover:bg-sunken-strong transition"
             aria-label="Fechar modal"
           >
             <X className="w-5 h-5" />
@@ -111,7 +111,7 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
         <div className="p-6 space-y-6">
           {/* Mood adjustment */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
               Humor geral
             </label>
             <div className="grid grid-cols-5 gap-1.5">
@@ -122,8 +122,8 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
                   onClick={() => setMood(item.level)}
                   className={`py-2 px-1 rounded-xl text-xs font-medium border flex flex-col items-center justify-center transition ${
                     mood === item.level
-                      ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-500 text-emerald-800 dark:text-emerald-300 font-semibold'
-                      : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800/50'
+                      ? 'bg-primary-soft dark:bg-primary-soft/50 border-primary text-primary dark:text-primary font-semibold'
+                      : 'border-line text-ink-muted hover:bg-sunken'
                   }`}
                 >
                   <span className="text-sm">{item.icon}</span>
@@ -136,10 +136,10 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
           {/* Energy level */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
                 Nível de Energia
               </label>
-              <span className="text-xs text-stone-600 dark:text-stone-400">
+              <span className="text-xs text-ink-muted">
                 {energy ? energyLabels[energy - 1] : 'Não informado'}
               </span>
             </div>
@@ -151,8 +151,8 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
                   onClick={() => setEnergy(energy === lvl ? null : (lvl as EnergyLevel))}
                   className={`py-2 rounded-xl text-xs font-medium border transition ${
                     energy === lvl
-                      ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 text-amber-800 dark:text-amber-300 font-semibold'
-                      : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800/50'
+                      ? 'bg-warning-soft dark:bg-warning-soft/40 border-warning text-warning dark:text-warning font-semibold'
+                      : 'border-line text-ink-muted hover:bg-sunken'
                   }`}
                 >
                   {lvl} - {energyLabels[lvl - 1].split(' ')[0]}
@@ -164,10 +164,10 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
           {/* Anxiety level */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
                 Nível de Ansiedade
               </label>
-              <span className="text-xs text-stone-600 dark:text-stone-400">
+              <span className="text-xs text-ink-muted">
                 {anxiety ? anxietyLabels[anxiety - 1] : 'Não informado'}
               </span>
             </div>
@@ -179,8 +179,8 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
                   onClick={() => setAnxiety(anxiety === lvl ? null : (lvl as AnxietyLevel))}
                   className={`py-2 rounded-xl text-xs font-medium border transition ${
                     anxiety === lvl
-                      ? 'bg-teal-50 dark:bg-teal-950/40 border-teal-500 text-teal-800 dark:text-teal-300 font-semibold'
-                      : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800/50'
+                      ? 'bg-accent-soft dark:bg-accent-soft/40 border-accent text-accent dark:text-accent font-semibold'
+                      : 'border-line text-ink-muted hover:bg-sunken'
                   }`}
                 >
                   {lvl} - {anxietyLabels[lvl - 1].split(' ')[0]}
@@ -191,7 +191,7 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
 
           {/* Emotions chips */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
               Emoções presentes
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -207,8 +207,8 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
                       isSelected
                         ? isNeutralChoice
                           ? 'bg-stone-700 text-stone-100 dark:bg-stone-300 dark:text-stone-900 font-medium'
-                          : 'bg-emerald-700 text-white dark:bg-emerald-600 font-medium shadow-xs'
-                        : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200/60 dark:border-stone-700/60'
+                          : 'bg-primary text-on-primary dark:bg-primary font-medium shadow-xs'
+                        : 'bg-sunken text-ink-muted hover:bg-sunken-strong border border-line/60 dark:border-line-strong/60'
                     }`}
                   >
                     {em}
@@ -220,7 +220,7 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
 
           {/* Short note */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
               Observação curta (opcional)
             </label>
             <textarea
@@ -229,25 +229,25 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
               placeholder="O que está acontecendo ao seu redor neste momento?"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="w-full p-3 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50 text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+              className="w-full p-3 rounded-2xl border border-line bg-sunken text-sm text-ink placeholder-ink-subtle focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             />
-            <p className="text-[11px] text-stone-400 text-right">{note.length}/280</p>
+            <p className="text-[11px] text-ink-subtle text-right">{note.length}/280</p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-stone-50 dark:bg-stone-900 border-t border-stone-100 dark:border-stone-800 flex items-center justify-end space-x-3">
+        <div className="p-4 bg-sunken dark:bg-raised border-t border-line flex items-center justify-end space-x-3">
           <button
             type="button"
             onClick={onClose}
-            className="py-2.5 px-4 rounded-xl text-stone-600 dark:text-stone-400 hover:text-stone-800 text-sm font-medium transition"
+            className="py-2.5 px-4 rounded-xl text-ink-muted hover:text-ink text-sm font-medium transition"
           >
             Cancelar
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="py-2.5 px-6 rounded-2xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-medium text-sm flex items-center space-x-2 shadow-sm transition"
+            className="py-2.5 px-6 rounded-2xl bg-primary hover:bg-primary-hover dark:bg-primary text-on-primary font-medium text-sm flex items-center space-x-2 shadow-sm transition"
           >
             <Check className="w-4 h-4" />
             <span>Salvar Detalhes</span>

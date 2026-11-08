@@ -78,20 +78,20 @@ export const InsightsView: React.FC = () => {
   return (
     <div className="space-y-6 pb-20 animate-fadeIn">
       {/* Header & Period selector */}
-      <div className="bg-white dark:bg-stone-900 p-5 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+      <div className="bg-raised p-5 rounded-3xl border border-line shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-serif font-medium text-stone-900 dark:text-stone-100 flex items-center space-x-2">
-              <LineChart className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+            <h2 className="text-lg font-serif font-medium text-ink flex items-center space-x-2">
+              <LineChart className="w-5 h-5 text-primary dark:text-primary" />
               <span>Observações & Padrões</span>
             </h2>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+            <p className="text-xs text-ink-muted mt-0.5">
               Visualizações descritivas do seu caminho, sem metas ou julgamento.
             </p>
           </div>
 
           {/* Period selector */}
-          <div className="flex bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl border border-stone-200/60 dark:border-stone-700/60 shrink-0">
+          <div className="flex bg-sunken p-1 rounded-2xl border border-line/60 dark:border-line-strong/60 shrink-0">
             {([7, 30, 90] as PeriodFilter[]).map((days) => (
               <button
                 key={days}
@@ -99,8 +99,8 @@ export const InsightsView: React.FC = () => {
                 onClick={() => setPeriodDays(days)}
                 className={`py-1.5 px-3 rounded-xl text-xs font-medium transition ${
                   periodDays === days
-                    ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
-                    : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
+                    ? 'bg-raised text-ink shadow-xs'
+                    : 'text-ink-muted hover:text-ink dark:hover:text-stone-200'
                 }`}
               >
                 {days} dias
@@ -110,8 +110,8 @@ export const InsightsView: React.FC = () => {
         </div>
 
         {/* Exploratory disclaimer notice */}
-        <div className="p-3 bg-stone-50 dark:bg-stone-800/50 rounded-2xl border border-stone-200/50 dark:border-stone-700/50 flex items-start space-x-2.5 text-xs text-stone-500 dark:text-stone-400">
-          <Info className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+        <div className="p-3 bg-sunken rounded-2xl border border-line/50 dark:border-line-strong/50 flex items-start space-x-2.5 text-xs text-ink-muted">
+          <Info className="w-4 h-4 text-primary dark:text-primary shrink-0 mt-0.5" />
           <span>
             Estes gráficos refletem apenas os momentos que você optou por registrar. Dias sem dados são naturais e não indicam falha ou sucesso.
           </span>
@@ -119,21 +119,21 @@ export const InsightsView: React.FC = () => {
       </div>
 
       {/* CHART 1: Mood over time */}
-      <div className="bg-white dark:bg-stone-900 p-5 md:p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+      <div className="bg-raised p-5 md:p-6 rounded-3xl border border-line shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Heart className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+            <Heart className="w-4 h-4 text-primary dark:text-primary" />
+            <h3 className="text-sm font-semibold text-ink">
               Humor ao longo do período
             </h3>
           </div>
-          <span className="text-xs text-stone-400">Escala de 1 a 5</span>
+          <span className="text-xs text-ink-subtle">Escala de 1 a 5</span>
         </div>
 
         {filteredCheckIns.length < 2 ? (
           <div className="py-10 text-center space-y-2">
-            <AlertCircle className="w-6 h-6 text-stone-300 dark:text-stone-600 mx-auto" />
-            <p className="text-xs text-stone-500 dark:text-stone-400">
+            <AlertCircle className="w-6 h-6 text-stone-300 dark:text-ink-muted mx-auto" />
+            <p className="text-xs text-ink-muted">
               Ainda não há registros suficientes para mostrar tendências neste período.
             </p>
           </div>
@@ -167,7 +167,7 @@ export const InsightsView: React.FC = () => {
                     return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
                   }).join(' ')}
                   fill="none"
-                  stroke="#059669"
+                  stroke="var(--chart-mood)"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -183,7 +183,7 @@ export const InsightsView: React.FC = () => {
                       cx={x}
                       cy={y}
                       r="4.5"
-                      className="fill-emerald-600 stroke-white dark:stroke-stone-900 stroke-2"
+                      className="fill-primary stroke-white dark:stroke-stone-900 stroke-2"
                     />
                   );
                 })}
@@ -191,7 +191,7 @@ export const InsightsView: React.FC = () => {
             </div>
 
             {/* X-axis date range labels */}
-            <div className="flex justify-between text-[11px] text-stone-400 pt-1 border-t border-stone-100 dark:border-stone-800">
+            <div className="flex justify-between text-[11px] text-ink-subtle pt-1 border-t border-line">
               <span>{formatShortDate(filteredCheckIns[0].date)}</span>
               <span>{formatShortDate(filteredCheckIns[filteredCheckIns.length - 1].date)}</span>
             </div>
@@ -199,33 +199,33 @@ export const InsightsView: React.FC = () => {
         )}
 
         {/* Transparency footer */}
-        <div className="pt-2 border-t border-stone-100 dark:border-stone-800/80 flex flex-wrap items-center justify-between text-[11px] text-stone-400">
+        <div className="pt-2 border-t border-line flex flex-wrap items-center justify-between text-[11px] text-ink-subtle">
           <span>Baseado em {filteredCheckIns.length} check-ins</span>
           <span>{missingCheckInDays} dias sem registro nos últimos {periodDays} dias</span>
         </div>
       </div>
 
       {/* CHART 2: Energy & Anxiety */}
-      <div className="bg-white dark:bg-stone-900 p-5 md:p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+      <div className="bg-raised p-5 md:p-6 rounded-3xl border border-line shadow-xs space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+          <h3 className="text-sm font-semibold text-ink">
             Energia e Ansiedade observadas
           </h3>
           <div className="flex items-center space-x-3 text-[11px]">
             <span className="flex items-center space-x-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              <span className="text-stone-600 dark:text-stone-400">Energia</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-warning" />
+              <span className="text-ink-muted">Energia</span>
             </span>
             <span className="flex items-center space-x-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-teal-500" />
-              <span className="text-stone-600 dark:text-stone-400">Ansiedade</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-accent" />
+              <span className="text-ink-muted">Ansiedade</span>
             </span>
           </div>
         </div>
 
         {filteredCheckIns.filter(c => c.energy != null || c.anxiety != null).length < 2 ? (
           <div className="py-8 text-center space-y-1">
-            <p className="text-xs text-stone-500 dark:text-stone-400">
+            <p className="text-xs text-ink-muted">
               Sem dados suficientes de energia ou ansiedade neste período.
             </p>
           </div>
@@ -238,7 +238,7 @@ export const InsightsView: React.FC = () => {
                   <path
                     d={buildSeriesPath(filteredCheckIns, (item) => item.energy, 100)}
                     fill="none"
-                    stroke="#F59E0B"
+                    stroke="var(--chart-energy)"
                     strokeWidth="2"
                     strokeLinecap="round"
                   />
@@ -249,7 +249,7 @@ export const InsightsView: React.FC = () => {
                   <path
                     d={buildSeriesPath(filteredCheckIns, (item) => item.anxiety, 100)}
                     fill="none"
-                    stroke="#14B8A6"
+                    stroke="var(--chart-anxiety)"
                     strokeWidth="2"
                     strokeDasharray="4 3"
                     strokeLinecap="round"
@@ -257,7 +257,7 @@ export const InsightsView: React.FC = () => {
                 )}
               </svg>
             </div>
-            <p className="text-[11px] text-stone-400 text-center">
+            <p className="text-[11px] text-ink-subtle text-center">
               Tendências visuais para auto-observação, sem afirmação de causalidade.
             </p>
           </div>
@@ -265,19 +265,19 @@ export const InsightsView: React.FC = () => {
       </div>
 
       {/* CHART 3: Sleep */}
-      <div className="bg-white dark:bg-stone-900 p-5 md:p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+      <div className="bg-raised p-5 md:p-6 rounded-3xl border border-line shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Moon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+            <Moon className="w-4 h-4 text-info dark:text-info" />
+            <h3 className="text-sm font-semibold text-ink">
               Repouso & Duração de Sono
             </h3>
           </div>
-          <span className="text-xs text-stone-400">Em horas</span>
+          <span className="text-xs text-ink-subtle">Em horas</span>
         </div>
 
         {filteredSleep.length === 0 ? (
-          <div className="py-8 text-center text-xs text-stone-500 dark:text-stone-400">
+          <div className="py-8 text-center text-xs text-ink-muted">
             Nenhum registro de sono no período selecionado.
           </div>
         ) : (
@@ -290,13 +290,13 @@ export const InsightsView: React.FC = () => {
                   <div key={s.id} className="flex flex-col items-center h-full justify-end group">
                     <div
                       style={{ height: `${heightPct}%` }}
-                      className="w-full max-w-[28px] rounded-t-lg bg-indigo-200 dark:bg-indigo-900/60 hover:bg-indigo-400 transition relative"
+                      className="w-full max-w-[28px] rounded-t-lg bg-info/20 dark:bg-info/60 hover:bg-info transition relative"
                     >
                       <span className="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-[9px] py-0.5 px-1 rounded transition whitespace-nowrap z-10">
                         {hours.toFixed(1)}h
                       </span>
                     </div>
-                    <span className="text-[9px] text-stone-400 mt-1 truncate w-full text-center">
+                    <span className="text-[9px] text-ink-subtle mt-1 truncate w-full text-center">
                       {formatShortDate(s.date)}
                     </span>
                   </div>
@@ -304,7 +304,7 @@ export const InsightsView: React.FC = () => {
               })}
             </div>
 
-            <div className="pt-2 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between text-[11px] text-stone-400">
+            <div className="pt-2 border-t border-line flex items-center justify-between text-[11px] text-ink-subtle">
               <span>{filteredSleep.length} noites registradas</span>
               <span>{missingSleepDays} noites sem registro</span>
             </div>
@@ -313,16 +313,16 @@ export const InsightsView: React.FC = () => {
       </div>
 
       {/* CHART 4: Impulses by Category */}
-      <div className="bg-white dark:bg-stone-900 p-5 md:p-6 rounded-3xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+      <div className="bg-raised p-5 md:p-6 rounded-3xl border border-line shadow-xs space-y-4">
         <div className="flex items-center space-x-2">
-          <Flame className="w-4 h-4 text-rose-600 dark:text-rose-400" />
-          <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+          <Flame className="w-4 h-4 text-danger dark:text-danger" />
+          <h3 className="text-sm font-semibold text-ink">
             Frequência de Impulsos Observados
           </h3>
         </div>
 
         {filteredBehaviors.length === 0 ? (
-          <div className="py-8 text-center text-xs text-stone-500 dark:text-stone-400">
+          <div className="py-8 text-center text-xs text-ink-muted">
             Nenhum impulso registrado no período selecionado.
           </div>
         ) : (
@@ -336,15 +336,15 @@ export const InsightsView: React.FC = () => {
               ).toFixed(1);
 
               return (
-                <div key={cat.id} className="p-3 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200/60 dark:border-stone-800 space-y-1.5 text-xs">
+                <div key={cat.id} className="p-3 rounded-2xl bg-sunken border border-line space-y-1.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-stone-800 dark:text-stone-200">{cat.name}</span>
-                    <span className="text-stone-500 dark:text-stone-400">
+                    <span className="font-semibold text-ink">{cat.name}</span>
+                    <span className="text-ink-muted">
                       {occurrences.length} {occurrences.length === 1 ? 'registro' : 'registros'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-stone-400">
-                    <span>Intensidade média do impulso: <strong className="text-rose-600 dark:text-rose-400">{avgIntensity}/10</strong></span>
+                  <div className="flex items-center justify-between text-[11px] text-ink-subtle">
+                    <span>Intensidade média do impulso: <strong className="text-danger dark:text-danger">{avgIntensity}/10</strong></span>
                   </div>
                 </div>
               );

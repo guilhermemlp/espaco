@@ -77,15 +77,15 @@ export const JournalView: React.FC<JournalViewProps> = ({
   return (
     <div className="space-y-5 pb-20 animate-fadeIn">
       {/* Top Banner */}
-      <div className="bg-emerald-50/70 dark:bg-emerald-950/30 p-5 rounded-3xl border border-emerald-200/60 dark:border-emerald-800/60 flex items-start justify-between">
+      <div className="bg-primary-soft/70 dark:bg-primary-soft/30 p-5 rounded-3xl border border-primary/25 dark:border-primary/25 flex items-start justify-between">
         <div className="space-y-1">
-          <div className="flex items-center space-x-2 text-emerald-800 dark:text-emerald-400">
+          <div className="flex items-center space-x-2 text-primary dark:text-primary">
             <Lock className="w-4 h-4" />
             <span className="text-xs font-semibold uppercase tracking-wider">
               Diário Pessoal & Privado
             </span>
           </div>
-          <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed max-w-sm">
+          <p className="text-xs text-ink-muted leading-relaxed max-w-sm">
             Um único lugar para reflexões de meditação, reuniões, gratidão ou desabafos livres. Tudo protegido no seu dispositivo.
           </p>
         </div>
@@ -93,7 +93,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
         <button
           type="button"
           onClick={() => setIsCreatingNew(true)}
-          className="py-2 px-3.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-medium text-xs flex items-center space-x-1.5 shadow-sm transition shrink-0"
+          className="py-2 px-3.5 rounded-2xl bg-primary hover:bg-primary-hover dark:bg-primary text-on-primary font-medium text-xs flex items-center space-x-1.5 shadow-sm transition shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Escrever</span>
@@ -102,13 +102,13 @@ export const JournalView: React.FC<JournalViewProps> = ({
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" />
+        <Search className="w-4 h-4 text-ink-subtle absolute left-3.5 top-3.5" />
         <input
           type="text"
           placeholder="Buscar nas anotações..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+          className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-line bg-raised text-sm text-ink placeholder-ink-subtle focus:outline-none focus:ring-2 focus:ring-primary transition"
         />
       </div>
 
@@ -120,7 +120,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
           className={`py-1.5 px-3 rounded-xl text-xs font-medium whitespace-nowrap transition ${
             selectedTagFilter === 'todos'
               ? 'bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900'
-              : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+              : 'bg-sunken text-ink-muted hover:bg-sunken-strong'
           }`}
         >
           Todos ({journalEntries.length})
@@ -135,8 +135,8 @@ export const JournalView: React.FC<JournalViewProps> = ({
               onClick={() => setSelectedTagFilter(t.tag)}
               className={`py-1.5 px-3 rounded-xl text-xs font-medium whitespace-nowrap transition ${
                 selectedTagFilter === t.tag
-                  ? 'bg-emerald-700 text-white dark:bg-emerald-600'
-                  : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                  ? 'bg-primary text-on-primary dark:bg-primary'
+                  : 'bg-sunken text-ink-muted hover:bg-sunken-strong'
               }`}
             >
               {t.label} ({count})
@@ -147,14 +147,14 @@ export const JournalView: React.FC<JournalViewProps> = ({
 
       {/* Entry List */}
       {filteredEntries.length === 0 ? (
-        <div className="text-center py-16 px-4 bg-white dark:bg-stone-900 rounded-3xl border border-stone-200/60 dark:border-stone-800/80 space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 text-stone-400 flex items-center justify-center mx-auto">
+        <div className="text-center py-16 px-4 bg-raised rounded-3xl border border-line space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-sunken text-ink-subtle flex items-center justify-center mx-auto">
             <BookOpen className="w-6 h-6" />
           </div>
-          <h3 className="text-sm font-medium text-stone-800 dark:text-stone-200">
+          <h3 className="text-sm font-medium text-ink">
             {searchTerm || selectedTagFilter !== 'todos' ? 'Nenhuma anotação nesta categoria' : 'Nenhuma entrada ainda'}
           </h3>
-          <p className="text-xs text-stone-500 dark:text-stone-400 max-w-xs mx-auto">
+          <p className="text-xs text-ink-muted max-w-xs mx-auto">
             {searchTerm || selectedTagFilter !== 'todos'
               ? 'Tente selecionar outro filtro ou limpar a pesquisa.'
               : 'Seu diário é um refúgio acolhedor. Toque no botão "Escrever" quando sentir vontade.'}
@@ -166,11 +166,11 @@ export const JournalView: React.FC<JournalViewProps> = ({
             <div
               key={entry.id}
               onClick={() => setEditingEntry(entry)}
-              className="p-5 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800/80 hover:border-emerald-300 dark:hover:border-emerald-800 shadow-xs hover:shadow-sm transition cursor-pointer space-y-2.5 group"
+              className="p-5 rounded-3xl bg-raised border border-line hover:border-primary/25 dark:hover:border-primary/25 shadow-xs hover:shadow-sm transition cursor-pointer space-y-2.5 group"
             >
-              <div className="flex items-center justify-between text-xs text-stone-400 dark:text-stone-500">
+              <div className="flex items-center justify-between text-xs text-ink-subtle">
                 <div className="flex items-center space-x-2">
-                  <span className="flex items-center space-x-1.5 font-medium text-stone-600 dark:text-stone-300">
+                  <span className="flex items-center space-x-1.5 font-medium text-ink-muted">
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{formatDate(entry.date)}</span>
                   </span>
@@ -184,12 +184,12 @@ export const JournalView: React.FC<JournalViewProps> = ({
               </div>
 
               {entry.title && (
-                <h3 className="text-base font-serif font-medium text-stone-900 dark:text-stone-100 group-hover:text-emerald-800 dark:group-hover:text-emerald-400 transition">
+                <h3 className="text-base font-serif font-medium text-ink group-hover:text-primary dark:group-hover:text-primary transition">
                   {entry.title}
                 </h3>
               )}
 
-              <p className="text-xs md:text-sm text-stone-600 dark:text-stone-300 line-clamp-3 leading-relaxed">
+              <p className="text-xs md:text-sm text-ink-muted line-clamp-3 leading-relaxed">
                 {entry.content}
               </p>
             </div>

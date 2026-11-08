@@ -1,5 +1,144 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   MODO ESCURO
+   O tema é controlado pela classe .dark no <html> (preferência do usuário),
+   e não pela preferência do sistema operacional.
+   ========================================================================== */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   TOKENS SEMÂNTICOS
+   Cores em dois níveis:
+   1. Valores por tema (claro/escuro) em variáveis CSS.
+   2. Utilitários do Tailwind mapeados para essas variáveis.
+   Uso: bg-surface, bg-raised, text-ink, text-ink-muted, border-line,
+        bg-primary, text-on-primary, text-danger, etc.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Superfícies */
+  --surface: #faf8f4;
+  --raised: #ffffff;
+  --sunken: #f2efe9;
+  --sunken-strong: #ece7de;
+
+  /* Linhas */
+  --line: #e5dfd5;
+  --line-strong: #d6d0c4;
+
+  /* Texto */
+  --ink: #1b1917;
+  --ink-muted: #57534e;
+  --ink-subtle: #6f6862;
+
+  /* Primária */
+  --primary: #0b6b4f;
+  --primary-hover: #095c43;
+  --primary-soft: #e7f2ec;
+  --on-primary: #ffffff;
+
+  /* Secundária (jornada / meditação) */
+  --accent: #0f766e;
+  --accent-hover: #115e59;
+  --accent-soft: #e6f4f2;
+  --on-accent: #ffffff;
+
+  /* Semânticas */
+  --danger: #be123c;
+  --danger-hover: #9f1239;
+  --danger-soft: #fff1f2;
+  --warning: #a16207;
+  --warning-soft: #fffbeb;
+  --info: #4338ca;
+  --info-soft: #eef2ff;
+
+  /* Gráficos */
+  --chart-mood: #047857;
+  --chart-energy: #b45309;
+  --chart-anxiety: #0f766e;
+  --chart-urge: #be123c;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --surface: #141210;
+  --raised: #1e1b18;
+  --sunken: #262220;
+  --sunken-strong: #2e2a26;
+
+  --line: #33302b;
+  --line-strong: #443e37;
+
+  --ink: #f5f3ef;
+  --ink-muted: #cfc9c1;
+  --ink-subtle: #a8a29e;
+
+  --primary: #10b981;
+  --primary-hover: #34d399;
+  --primary-soft: #052e22;
+  --on-primary: #0c0a09;
+
+  --accent: #2dd4bf;
+  --accent-hover: #5eead4;
+  --accent-soft: #042f2e;
+  --on-accent: #0c0a09;
+
+  --danger: #fb7185;
+  --danger-hover: #fda4af;
+  --danger-soft: #4c0519;
+  --warning: #fbbf24;
+  --warning-soft: #451a03;
+  --info: #a5b4fc;
+  --info-soft: #1e1b4b;
+
+  --chart-mood: #34d399;
+  --chart-energy: #fbbf24;
+  --chart-anxiety: #2dd4bf;
+  --chart-urge: #fb7185;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-sunken: var(--sunken);
+  --color-sunken-strong: var(--sunken-strong);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --color-chart-mood: var(--chart-mood);
+  --color-chart-energy: var(--chart-energy);
+  --color-chart-anxiety: var(--chart-anxiety);
+  --color-chart-urge: var(--chart-urge);
+}
+
 @layer utilities {
   @keyframes fadeIn {
     from {

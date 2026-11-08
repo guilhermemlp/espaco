@@ -100,22 +100,22 @@ export const AuthScreen: React.FC = () => {
           : 'Entrar sem senha';
 
   return (
-    <div className="min-h-screen bg-stone-100 dark:bg-stone-950 text-stone-900 dark:text-stone-50 font-sans antialiased flex items-center justify-center p-4 py-10">
-      <div className="w-full max-w-md bg-[#FAF9F6] dark:bg-stone-900 rounded-3xl shadow-xl border border-stone-200/80 dark:border-stone-800 p-6 md:p-8 space-y-6">
+    <div className="min-h-screen bg-surface text-ink font-sans antialiased flex items-center justify-center p-4 py-10">
+      <div className="w-full max-w-md bg-raised rounded-3xl shadow-xl border border-line p-6 md:p-8 space-y-6">
         <div className="text-center space-y-3">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-inner">
+          <div className="w-16 h-16 rounded-2xl bg-primary-soft dark:bg-primary-soft/60 text-primary dark:text-primary flex items-center justify-center mx-auto shadow-inner">
             <Sparkles className="w-8 h-8" />
           </div>
           <div>
             <h1 className="text-2xl font-serif font-medium tracking-tight">Espaço</h1>
-            <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">
+            <p className="text-sm text-ink-muted mt-1">
               Um lugar privado para se observar, no seu ritmo.
             </p>
           </div>
         </div>
 
         {!isSupabaseReady ? (
-          <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+          <div className="p-4 rounded-2xl bg-warning-soft dark:bg-warning-soft/40 border border-warning/25 dark:border-warning/25 text-xs text-warning dark:text-warning leading-relaxed">
             O login na nuvem não está configurado neste ambiente. Defina
             <code className="mx-1 font-mono">VITE_SUPABASE_URL</code> e
             <code className="mx-1 font-mono">VITE_SUPABASE_ANON_KEY</code>
@@ -123,14 +123,14 @@ export const AuthScreen: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="flex bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl text-xs">
+            <div className="flex bg-sunken p-1 rounded-2xl text-xs">
               <button
                 type="button"
                 onClick={() => switchMode('login')}
                 className={`flex-1 py-2 rounded-xl font-medium transition ${
                   mode === 'login' || mode === 'reset'
-                    ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
-                    : 'text-stone-500 dark:text-stone-400'
+                    ? 'bg-raised text-ink shadow-xs'
+                    : 'text-ink-muted'
                 }`}
               >
                 Entrar
@@ -140,8 +140,8 @@ export const AuthScreen: React.FC = () => {
                 onClick={() => switchMode('signup')}
                 className={`flex-1 py-2 rounded-xl font-medium transition ${
                   mode === 'signup'
-                    ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
-                    : 'text-stone-500 dark:text-stone-400'
+                    ? 'bg-raised text-ink shadow-xs'
+                    : 'text-ink-muted'
                 }`}
               >
                 Criar conta
@@ -151,8 +151,8 @@ export const AuthScreen: React.FC = () => {
                 onClick={() => switchMode('magic')}
                 className={`flex-1 py-2 rounded-xl font-medium transition ${
                   mode === 'magic'
-                    ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs'
-                    : 'text-stone-500 dark:text-stone-400'
+                    ? 'bg-raised text-ink shadow-xs'
+                    : 'text-ink-muted'
                 }`}
               >
                 Sem senha
@@ -161,7 +161,7 @@ export const AuthScreen: React.FC = () => {
 
             <div className="space-y-1">
               <h2 className="text-lg font-serif font-medium">{title}</h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
+              <p className="text-xs text-ink-muted">
                 {mode === 'magic'
                   ? 'Enviaremos um link de acesso para o seu e-mail. Sem senha para lembrar.'
                   : mode === 'reset'
@@ -171,14 +171,14 @@ export const AuthScreen: React.FC = () => {
             </div>
 
             {error && (
-              <div className="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 rounded-xl text-xs flex items-start space-x-2">
+              <div className="p-3 bg-danger-soft dark:bg-danger-soft/40 text-danger dark:text-danger rounded-xl text-xs flex items-start space-x-2">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
             )}
 
             {message && (
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs flex items-start space-x-2">
+              <div className="p-3 bg-primary-soft dark:bg-primary-soft/40 text-primary dark:text-primary rounded-xl text-xs flex items-start space-x-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{message}</span>
               </div>
@@ -187,11 +187,11 @@ export const AuthScreen: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-3">
               {mode === 'signup' && (
                 <div>
-                  <label className="text-xs font-medium text-stone-600 dark:text-stone-300 block mb-1">
+                  <label className="text-xs font-medium text-ink-muted block mb-1">
                     Como quer ser chamado(a)?
                   </label>
                   <div className="relative">
-                    <User className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                    <User className="w-4 h-4 text-ink-subtle absolute left-3 top-3" />
                     <input
                       type="text"
                       value={displayName}
@@ -199,18 +199,18 @@ export const AuthScreen: React.FC = () => {
                       placeholder="Opcional"
                       aria-label="Como quer ser chamado"
                       autoComplete="nickname"
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-line-strong bg-raised text-sm placeholder-ink-subtle focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </div>
               )}
 
               <div>
-                <label className="text-xs font-medium text-stone-600 dark:text-stone-300 block mb-1">
+                <label className="text-xs font-medium text-ink-muted block mb-1">
                   E-mail
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                  <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-3" />
                   <input
                     type="email"
                     required
@@ -219,18 +219,18 @@ export const AuthScreen: React.FC = () => {
                     placeholder="seu@email.com"
                     aria-label="E-mail"
                     autoComplete="email"
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-line-strong bg-raised text-sm placeholder-ink-subtle focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </div>
 
               {mode !== 'magic' && mode !== 'reset' && (
                 <div>
-                  <label className="text-xs font-medium text-stone-600 dark:text-stone-300 block mb-1">
+                  <label className="text-xs font-medium text-ink-muted block mb-1">
                     Senha
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                    <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-3" />
                     <input
                       type="password"
                       required
@@ -240,7 +240,7 @@ export const AuthScreen: React.FC = () => {
                       placeholder={`Mínimo de ${MIN_PASSWORD_LENGTH} caracteres`}
                       aria-label="Senha"
                       autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-line-strong bg-raised text-sm placeholder-ink-subtle focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
@@ -248,7 +248,7 @@ export const AuthScreen: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => switchMode('reset')}
-                      className="mt-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
+                      className="mt-1.5 text-[11px] font-medium text-primary dark:text-primary hover:underline"
                     >
                       Esqueci minha senha
                     </button>
@@ -259,7 +259,7 @@ export const AuthScreen: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-6 rounded-2xl bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 disabled:opacity-60 text-white font-medium text-sm flex items-center justify-center space-x-2 shadow-sm transition active:scale-[0.99]"
+                className="w-full py-3.5 px-6 rounded-2xl bg-primary hover:bg-primary-hover dark:bg-primary disabled:opacity-60 text-on-primary font-medium text-sm flex items-center justify-center space-x-2 shadow-sm transition active:scale-[0.99]"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -286,7 +286,7 @@ export const AuthScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={() => switchMode('login')}
-                className="w-full text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
+                className="w-full text-xs text-ink-muted hover:text-ink"
               >
                 Voltar para entrar
               </button>
@@ -294,15 +294,15 @@ export const AuthScreen: React.FC = () => {
           </>
         )}
 
-        <div className="pt-2 border-t border-stone-200/80 dark:border-stone-800 space-y-2">
-          <p className="text-[11px] text-stone-500 dark:text-stone-400 flex items-start space-x-2 leading-relaxed">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+        <div className="pt-2 border-t border-line space-y-2">
+          <p className="text-[11px] text-ink-muted flex items-start space-x-2 leading-relaxed">
+            <ShieldCheck className="w-4 h-4 text-primary dark:text-primary shrink-0 mt-0.5" />
             <span>
               Seus dados são protegidos por regras de acesso por usuário. O PIN de bloqueio
               permanece apenas neste dispositivo e nunca é enviado para a nuvem.
             </span>
           </p>
-          <p className="text-[11px] text-stone-400 dark:text-stone-500 leading-relaxed">
+          <p className="text-[11px] text-ink-subtle leading-relaxed">
             Este aplicativo não fornece diagnósticos e não substitui acompanhamento profissional.
           </p>
         </div>
