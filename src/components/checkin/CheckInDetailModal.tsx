@@ -86,7 +86,7 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
   const anxietyLabels = ['Muito baixa', 'Baixa', 'Moderada', 'Alta', 'Muito alta'];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-900/60 backdrop-blur-sm p-0 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-scrim backdrop-blur-sm p-0 sm:p-4 overflow-y-auto">
       <div className="w-full max-w-lg bg-raised rounded-t-3xl sm:rounded-3xl shadow-2xl border border-line max-h-[90vh] overflow-y-auto flex flex-col transition-colors animate-slideUp">
         {/* Header */}
         <div className="sticky top-0 bg-raised/95 dark:bg-raised/95 backdrop-blur-md px-6 py-4 border-b border-line flex items-center justify-between z-10">
@@ -122,11 +122,11 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
                   onClick={() => setMood(item.level)}
                   className={`py-2 px-1 rounded-xl text-xs font-medium border flex flex-col items-center justify-center transition ${
                     mood === item.level
-                      ? 'bg-primary-soft dark:bg-primary-soft/50 border-primary text-primary dark:text-primary font-semibold'
-                      : 'border-line text-ink-muted hover:bg-sunken'
+                      ? `${item.softClass} ${item.borderClass} ${item.iconClass} font-semibold`
+                      : `border-line text-ink-muted ${item.hoverClass}`
                   }`}
                 >
-                  <span className="text-sm">{item.icon}</span>
+                  <span className={`text-sm ${item.iconClass}`}>{item.icon}</span>
                   <span className="text-[10px] mt-1">{item.label}</span>
                 </button>
               ))}
@@ -206,7 +206,7 @@ export const CheckInDetailModal: React.FC<CheckInDetailModalProps> = ({ initialD
                     className={`py-1.5 px-3 rounded-full text-xs transition ${
                       isSelected
                         ? isNeutralChoice
-                          ? 'bg-stone-700 text-stone-100 dark:bg-stone-300 dark:text-stone-900 font-medium'
+                          ? 'bg-ink text-surface font-medium'
                           : 'bg-primary text-on-primary dark:bg-primary font-medium shadow-xs'
                         : 'bg-sunken text-ink-muted hover:bg-sunken-strong border border-line/60 dark:border-line-strong/60'
                     }`}

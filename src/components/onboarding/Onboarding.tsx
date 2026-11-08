@@ -64,7 +64,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim backdrop-blur-sm p-4 overflow-y-auto">
       <div className="w-full max-w-lg bg-sunken dark:bg-raised text-ink rounded-3xl shadow-2xl border border-line p-6 md:p-8 transition-all">
         {/* Progress indicator */}
         <div className="flex items-center justify-between mb-6">

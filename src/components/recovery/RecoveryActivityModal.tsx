@@ -45,7 +45,7 @@ export const RecoveryActivityModal: React.FC<RecoveryActivityModalProps> = ({ pe
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim backdrop-blur-sm p-4 overflow-y-auto">
       <div className="w-full max-w-lg bg-raised rounded-3xl shadow-2xl border border-line p-6 space-y-5 animate-slideUp">
         <div className="flex items-center justify-between border-b border-line pb-3">
           <h2 className="text-lg font-serif font-medium text-ink">

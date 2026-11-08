@@ -119,7 +119,7 @@ export const JournalView: React.FC<JournalViewProps> = ({
           onClick={() => setSelectedTagFilter('todos')}
           className={`py-1.5 px-3 rounded-xl text-xs font-medium whitespace-nowrap transition ${
             selectedTagFilter === 'todos'
-              ? 'bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900'
+              ? 'bg-ink text-surface'
               : 'bg-sunken text-ink-muted hover:bg-sunken-strong'
           }`}
         >

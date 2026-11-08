@@ -30,6 +30,10 @@
   --line: #e5dfd5;
   --line-strong: #d6d0c4;
 
+  /* Sobreposições (modais e tooltips) */
+  --scrim: rgb(28 25 23 / 0.6);
+  --scrim-strong: rgb(28 25 23 / 0.95);
+
   /* Texto */
   --ink: #1b1917;
   --ink-muted: #57534e;
@@ -56,6 +60,18 @@
   --info: #4338ca;
   --info-soft: #eef2ff;
 
+  /* Escala de humor — cores próprias (sem semáforo bom/ruim) */
+  --mood-1: #6a5b9e;
+  --mood-1-soft: #efeafa;
+  --mood-2: #3f6699;
+  --mood-2-soft: #e9f0f9;
+  --mood-3: #836331;
+  --mood-3-soft: #faf1e2;
+  --mood-4: #58742d;
+  --mood-4-soft: #f0f6e4;
+  --mood-5: #0b6b4f;
+  --mood-5-soft: #e7f2ec;
+
   /* Gráficos */
   --chart-mood: #047857;
   --chart-energy: #b45309;
@@ -73,6 +89,9 @@
 
   --line: #33302b;
   --line-strong: #443e37;
+
+  --scrim: rgb(10 9 8 / 0.72);
+  --scrim-strong: rgb(10 9 8 / 0.96);
 
   --ink: #f5f3ef;
   --ink-muted: #cfc9c1;
@@ -96,6 +115,17 @@
   --info: #a5b4fc;
   --info-soft: #1e1b4b;
 
+  --mood-1: #b6a8e3;
+  --mood-1-soft: #1e1a2b;
+  --mood-2: #8db4e0;
+  --mood-2-soft: #141d28;
+  --mood-3: #dcc08a;
+  --mood-3-soft: #2a2015;
+  --mood-4: #b3cc7f;
+  --mood-4-soft: #1e2415;
+  --mood-5: #34d399;
+  --mood-5-soft: #052e22;
+
   --chart-mood: #34d399;
   --chart-energy: #fbbf24;
   --chart-anxiety: #2dd4bf;
@@ -110,6 +140,9 @@
 
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
+
+  --color-scrim: var(--scrim);
+  --color-scrim-strong: var(--scrim-strong);
 
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
@@ -132,6 +165,17 @@
   --color-warning-soft: var(--warning-soft);
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
+
+  --color-mood-1: var(--mood-1);
+  --color-mood-1-soft: var(--mood-1-soft);
+  --color-mood-2: var(--mood-2);
+  --color-mood-2-soft: var(--mood-2-soft);
+  --color-mood-3: var(--mood-3);
+  --color-mood-3-soft: var(--mood-3-soft);
+  --color-mood-4: var(--mood-4);
+  --color-mood-4-soft: var(--mood-4-soft);
+  --color-mood-5: var(--mood-5);
+  --color-mood-5-soft: var(--mood-5-soft);
 
   --color-chart-mood: var(--chart-mood);
   --color-chart-energy: var(--chart-energy);

@@ -25,60 +25,71 @@ export const MOOD_LEVELS: {
   label: string;
   sublabel: string;
   icon: React.ReactNode;
-  bgLight: string;
-  bgDark: string;
-  borderColor: string;
-  textColor: string;
+  /** Cor do ícone — própria de cada nível, sem conotação bom/ruim */
+  iconClass: string;
+  /** Fundo suave quando o nível está selecionado */
+  softClass: string;
+  /** Borda do nível selecionado */
+  borderClass: string;
+  /** Anel do nível selecionado */
+  ringClass: string;
+  /** Realce neutro no hover */
+  hoverClass: string;
 }[] = [
   {
     level: 1,
     label: 'Muito ruim',
     sublabel: 'Dia pesado',
     icon: <CloudRain className="w-6 h-6" />,
-    bgLight: 'bg-sunken hover:bg-sunken-strong text-ink-muted',
-    bgDark: 'dark:bg-sunken dark:hover:bg-sunken-strong dark:text-stone-300',
-    borderColor: 'border-line-strong',
-    textColor: 'text-ink-muted',
+    iconClass: 'text-mood-1',
+    softClass: 'bg-mood-1-soft',
+    borderClass: 'border-mood-1',
+    ringClass: 'ring-mood-1/25',
+    hoverClass: 'hover:bg-mood-1-soft/60',
   },
   {
     level: 2,
     label: 'Ruim',
     sublabel: 'Difícil',
     icon: <Cloud className="w-6 h-6" />,
-    bgLight: 'bg-sunken hover:bg-sunken-strong text-ink-muted',
-    bgDark: 'dark:bg-sunken dark:hover:bg-sunken-strong dark:text-stone-300',
-    borderColor: 'border-line-strong',
-    textColor: 'text-ink-muted',
+    iconClass: 'text-mood-2',
+    softClass: 'bg-mood-2-soft',
+    borderClass: 'border-mood-2',
+    ringClass: 'ring-mood-2/25',
+    hoverClass: 'hover:bg-mood-2-soft/60',
   },
   {
     level: 3,
     label: 'Neutro',
     sublabel: 'Equilibrado',
     icon: <Minus className="w-6 h-6" />,
-    bgLight: 'bg-sunken hover:bg-sunken-strong text-ink-muted',
-    bgDark: 'dark:bg-sunken dark:hover:bg-sunken-strong dark:text-stone-300',
-    borderColor: 'border-line-strong',
-    textColor: 'text-ink-muted',
+    iconClass: 'text-mood-3',
+    softClass: 'bg-mood-3-soft',
+    borderClass: 'border-mood-3',
+    ringClass: 'ring-mood-3/25',
+    hoverClass: 'hover:bg-mood-3-soft/60',
   },
   {
     level: 4,
     label: 'Bom',
     sublabel: 'Agradável',
     icon: <Sun className="w-6 h-6" />,
-    bgLight: 'bg-sunken hover:bg-sunken-strong text-ink-muted',
-    bgDark: 'dark:bg-sunken dark:hover:bg-sunken-strong dark:text-stone-300',
-    borderColor: 'border-line-strong',
-    textColor: 'text-ink-muted',
+    iconClass: 'text-mood-4',
+    softClass: 'bg-mood-4-soft',
+    borderClass: 'border-mood-4',
+    ringClass: 'ring-mood-4/25',
+    hoverClass: 'hover:bg-mood-4-soft/60',
   },
   {
     level: 5,
     label: 'Muito bom',
     sublabel: 'Radiante',
     icon: <Sparkles className="w-6 h-6" />,
-    bgLight: 'bg-sunken hover:bg-sunken-strong text-ink-muted',
-    bgDark: 'dark:bg-sunken dark:hover:bg-sunken-strong dark:text-stone-300',
-    borderColor: 'border-line-strong',
-    textColor: 'text-ink-muted',
+    iconClass: 'text-mood-5',
+    softClass: 'bg-mood-5-soft',
+    borderClass: 'border-mood-5',
+    ringClass: 'ring-mood-5/25',
+    hoverClass: 'hover:bg-mood-5-soft/60',
   },
 ];
 
@@ -131,7 +142,7 @@ export const QuickMoodSelector: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowDetailModal(true)}
-              className="p-1.5 rounded-xl text-ink-muted hover:text-ink dark:hover:text-stone-100 hover:bg-sunken-strong transition"
+              className="p-1.5 rounded-xl text-ink-muted hover:text-ink hover:bg-sunken-strong transition"
               title="Editar detalhes"
               aria-label="Editar check-in do dia"
             >
@@ -165,25 +176,19 @@ export const QuickMoodSelector: React.FC = () => {
               onClick={() => handleSelectMood(item.level)}
               className={`flex flex-col items-center justify-center py-3 px-1 md:px-2 rounded-2xl border transition-all duration-200 cursor-pointer min-h-[76px] ${
                 isSelected
-                  ? 'border-primary bg-primary-soft dark:bg-primary-soft/40 dark:border-primary ring-2 ring-primary/30 scale-[1.03] shadow-xs'
-                  : 'border-line hover:border-line-strong dark:hover:border-stone-700 bg-sunken hover:bg-sunken-strong'
+                  ? `${item.softClass} ${item.borderClass} ring-2 ${item.ringClass} scale-[1.03] shadow-xs`
+                  : `border-line bg-sunken hover:border-line-strong ${item.hoverClass}`
               }`}
               aria-label={`Registrar humor ${item.label}`}
               aria-pressed={isSelected}
             >
-              <div
-                className={`transition-colors duration-200 mb-1 ${
-                  isSelected
-                    ? 'text-primary dark:text-primary'
-                    : 'text-ink-muted'
-                }`}
-              >
+              <div className={`${item.iconClass} transition-colors duration-200 mb-1`}>
                 {item.icon}
               </div>
               <span
                 className={`text-[11px] md:text-xs font-medium tracking-tight text-center leading-tight ${
                   isSelected
-                    ? 'text-primary dark:text-primary font-semibold'
+                    ? `${item.iconClass} font-semibold`
                     : 'text-ink-muted'
                 }`}
               >

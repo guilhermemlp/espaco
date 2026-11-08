@@ -64,7 +64,7 @@ export const SleepModal: React.FC<SleepModalProps> = ({ initialData, onClose }) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-900/60 backdrop-blur-sm p-0 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-scrim backdrop-blur-sm p-0 sm:p-4 overflow-y-auto">
       <div className="w-full max-w-lg bg-raised rounded-t-3xl sm:rounded-3xl shadow-2xl border border-line max-h-[90vh] overflow-y-auto flex flex-col transition-colors animate-slideUp">
         {/* Header */}
         <div className="sticky top-0 bg-raised/95 dark:bg-raised/95 backdrop-blur-md px-6 py-4 border-b border-line flex items-center justify-between z-10">

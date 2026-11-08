@@ -100,7 +100,7 @@ export const InsightsView: React.FC = () => {
                 className={`py-1.5 px-3 rounded-xl text-xs font-medium transition ${
                   periodDays === days
                     ? 'bg-raised text-ink shadow-xs'
-                    : 'text-ink-muted hover:text-ink dark:hover:text-stone-200'
+                    : 'text-ink-muted hover:text-ink'
                 }`}
               >
                 {days} dias
@@ -132,7 +132,7 @@ export const InsightsView: React.FC = () => {
 
         {filteredCheckIns.length < 2 ? (
           <div className="py-10 text-center space-y-2">
-            <AlertCircle className="w-6 h-6 text-stone-300 dark:text-ink-muted mx-auto" />
+            <AlertCircle className="w-6 h-6 text-ink-subtle mx-auto" />
             <p className="text-xs text-ink-muted">
               Ainda não há registros suficientes para mostrar tendências neste período.
             </p>
@@ -154,7 +154,7 @@ export const InsightsView: React.FC = () => {
                       y2={y}
                       stroke="currentColor"
                       strokeDasharray="2 3"
-                      className="text-stone-200 dark:text-stone-800"
+                      className="text-line"
                     />
                   );
                 })}
@@ -183,7 +183,7 @@ export const InsightsView: React.FC = () => {
                       cx={x}
                       cy={y}
                       r="4.5"
-                      className="fill-primary stroke-white dark:stroke-stone-900 stroke-2"
+                      className="fill-primary stroke-raised stroke-2"
                     />
                   );
                 })}
@@ -292,7 +292,7 @@ export const InsightsView: React.FC = () => {
                       style={{ height: `${heightPct}%` }}
                       className="w-full max-w-[28px] rounded-t-lg bg-info/20 dark:bg-info/60 hover:bg-info transition relative"
                     >
-                      <span className="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-[9px] py-0.5 px-1 rounded transition whitespace-nowrap z-10">
+                      <span className="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 bg-ink text-surface text-[9px] py-0.5 px-1 rounded transition whitespace-nowrap z-10">
                         {hours.toFixed(1)}h
                       </span>
                     </div>

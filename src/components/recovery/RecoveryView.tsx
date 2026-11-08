@@ -271,7 +271,7 @@ export const RecoveryView: React.FC<RecoveryViewProps> = ({ onReflectInJournal }
 
       {/* Gentle Restart Modal */}
       {showRestartModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim backdrop-blur-sm p-4 overflow-y-auto">
           <div className="w-full max-w-md bg-raised rounded-3xl shadow-2xl border border-line p-6 space-y-4 animate-slideUp">
             <div className="flex items-center space-x-2 text-accent dark:text-accent">
               <ShieldCheck className="w-5 h-5" />

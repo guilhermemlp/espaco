@@ -61,7 +61,7 @@ export const JournalEditorModal: React.FC<JournalEditorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim backdrop-blur-sm p-4 overflow-y-auto">
       <div className="w-full max-w-lg bg-raised rounded-3xl shadow-2xl border border-line max-h-[90vh] overflow-y-auto flex flex-col transition-colors animate-slideUp">
         {/* Header */}
         <div className="px-6 py-4 border-b border-line flex items-center justify-between">

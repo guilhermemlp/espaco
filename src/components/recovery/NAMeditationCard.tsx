@@ -215,7 +215,7 @@ export const NAMeditationCard: React.FC<NAMeditationCardProps> = ({ onReflectInJ
             href={meditation.sourceUrl || 'https://www.na.org.br/meditacao/'}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-ink-muted hover:text-ink dark:hover:text-stone-200 flex items-center space-x-1 transition order-2 sm:order-1"
+            className="text-xs text-ink-muted hover:text-ink flex items-center space-x-1 transition order-2 sm:order-1"
           >
             <span>Ver no site oficial da NA</span>
             <ExternalLink className="w-3 h-3" />

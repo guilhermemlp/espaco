@@ -52,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
           <button
             type="button"
             onClick={lockApp}
-            className="p-2 rounded-xl text-ink-muted hover:text-ink dark:hover:text-stone-100 hover:bg-sunken-strong/60 dark:hover:bg-sunken transition"
+            className="p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-sunken-strong/60 dark:hover:bg-sunken transition"
             title="Bloquear com PIN"
             aria-label="Bloquear aplicativo com PIN"
           >

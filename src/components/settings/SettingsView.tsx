@@ -432,7 +432,7 @@ export const SettingsView: React.FC = () => {
             className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full ${
               isCloud
                 ? 'bg-primary-soft text-primary dark:bg-primary-soft dark:text-primary'
-                : 'bg-sunken text-ink-muted dark:bg-sunken dark:text-stone-300'
+                : 'bg-sunken text-ink-muted'
             }`}
           >
             {isCloud ? 'NUVEM ATIVA' : 'MODO LOCAL'}
