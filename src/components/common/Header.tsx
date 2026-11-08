@@ -63,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
         <button
           type="button"
           onClick={toggleTheme}
-          className="p-2 rounded-xl text-ink-muted hover:text-ink dark:hover:text-stone-100 hover:bg-sunken-strong/60 dark:hover:bg-sunken transition"
+          className="p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-sunken-strong/60 dark:hover:bg-sunken transition"
           title={preferences.theme === 'dark' ? 'Mudar para modo claro' : 'Mudar para modo escuro'}
           aria-label="Alternar tema claro ou escuro"
         >
